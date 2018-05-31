@@ -27,7 +27,7 @@ public class FileManager {
             if (!file.exists()) {
                 file.mkdirs();
             }
-            FileOutputStream fileOutputStream = new FileOutputStream(to + "/hbeats.mp3");// 保存到本地的文件夹下的文件
+            FileOutputStream fileOutputStream = new FileOutputStream(to + "/0.mp3");// 保存到本地的文件夹下的文件
             byte[] buffer = new byte[1024];
             int count = 0;
             while ((count = inputStream.read(buffer)) > 0) {

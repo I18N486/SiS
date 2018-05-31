@@ -13,21 +13,30 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import com.iflytek.sis.R;
+import com.iflytek.sis.bean.MemoBean;
 import com.iflytek.sis.componant.MusicService;
 import com.iflytek.sis.constant.Constants;
+import com.iflytek.sis.utils.Utils;
+
+import java.util.UUID;
+
+import io.realm.Realm;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private ImageView btnMusic;
     private ObjectAnimator animator;
+    Realm mRealm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initData();
         initView();
 //        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 //        //设置类型
@@ -37,15 +46,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         MusicService.actionStart(this, Constants.MUSIC_START);
     }
 
+    private void initData() {
+        mRealm = Realm.getDefaultInstance();
+    }
+
     private void initView() {
         btnMusic = findViewById(R.id.btn_music);
         btnMusic.setOnClickListener(this);
         animator = ObjectAnimator.ofFloat(btnMusic, "rotation", 0.0f, 359.0f);
-        animator.setDuration(6000);
-        animator.setInterpolator(new LinearInterpolator());
-        animator.setRepeatCount(-1);
-        animator.setRepeatMode(ValueAnimator.RESTART);
-        animator.start();
+        Utils.startMusicAnimator(animator);
+        Button add = findViewById(R.id.btn_add);
+        add.setOnClickListener(this);
     }
 
     @Override
@@ -78,6 +89,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @Override
     protected void onDestroy() {
         MusicService.actionStop(this);
+        mRealm.close();
         super.onDestroy();
     }
 
@@ -85,16 +97,23 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.btn_music:
-                MusicService.actionStart(this,Constants.MUSIC_PAUSE_GOON);
-                if (animator == null){
-                    break;
-                } else {
-                    if (animator.isPaused()){
-                        animator.resume();
-                    } else {
-                        animator.pause();
-                    }
-                }
+                Utils.musicBtnClick(this,animator);
+                break;
+            case R.id.btn_add:
+//                for (int i=0;i<5;i++) {
+//                    final MemoBean memoBean = new MemoBean();
+//                    memoBean.setId(i);
+//                    memoBean.setContent("测试realm，这是测试数据！"+i);
+//                    memoBean.setRemind(true);
+//                    memoBean.setTime(System.currentTimeMillis());
+//                    mRealm.executeTransaction(new Realm.Transaction() {
+//                        @Override
+//                        public void execute(Realm realm) {
+//                            mRealm.copyToRealmOrUpdate(memoBean);
+//                        }
+//                    });
+//                }
+                MemoActivity.actionStart(this);
                 break;
         }
     }
