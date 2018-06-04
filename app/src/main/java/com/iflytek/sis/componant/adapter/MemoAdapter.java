@@ -5,9 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.iflytek.sis.R;
+import com.iflytek.sis.SisApplication;
 import com.iflytek.sis.bean.MemoBean;
 
 import java.util.List;
@@ -37,26 +39,12 @@ public class MemoAdapter extends RecyclerView.Adapter<MemoAdapter.ViewHodler> {
     @Override
     public ViewHodler onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_memo_list,null);
-        ViewHodler hodler = new ViewHodler(view);
-        hodler.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mItemviewListener.onClickListener();
-            }
-        });
-        hodler.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-
-                //消耗长事件，不触发点击
-                return true;
-            }
-        });
-        return hodler;
+        ViewHodler holder = new ViewHodler(view);
+        return holder;
     }
 
     @Override
-    public void onBindViewHolder(ViewHodler holder, int position) {
+    public void onBindViewHolder(final ViewHodler holder, final int position) {
         String title = memoBeans.get(position).getContent();
         boolean isRemind = memoBeans.get(position).isRemind();
         holder.title.setText(title);
@@ -65,7 +53,25 @@ public class MemoAdapter extends RecyclerView.Adapter<MemoAdapter.ViewHodler> {
         } else {
             holder.remind.setVisibility(View.GONE);
         }
-
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mItemviewListener != null) {
+                    mItemviewListener.onClickListener(position);
+                }
+            }
+        });
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                if (mItemviewLongListener != null) {
+                    mItemviewLongListener.onClickListener(position);
+                    holder.llItem.setBackgroundColor(SisApplication.getContext().getResources().getColor(R.color.mint_green));
+                }
+                //消耗长事件，不触发点击
+                return true;
+            }
+        });
     }
 
     @Override
@@ -77,19 +83,21 @@ public class MemoAdapter extends RecyclerView.Adapter<MemoAdapter.ViewHodler> {
 
         TextView title;
         ImageView remind;
+        LinearLayout llItem;
 
         public ViewHodler(View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.memo_item_title);
             remind = itemView.findViewById(R.id.memo_item_icon);
+            llItem = itemView.findViewById(R.id.ll_memo_item);
         }
     }
 
     public interface ItemviewClickListener{
-        void onClickListener();
+        void onClickListener(int position);
     }
 
     public interface ItemviewLongclickListener{
-        void onClickListener();
+        void onClickListener(int position);
     }
 }

@@ -1,13 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/fm_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/memo_list"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    </android.support.v7.widget.RecyclerView>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp">
+            <EditText
+                android:id="@+id/find_text"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:background="@mipmap/icon_find_bg"
+                android:gravity="center"/>
+            <ImageView
+                android:id="@+id/btn_find"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:clickable="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@mipmap/icon_find"/>
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:text="取消"/>
+        </LinearLayout>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/memo_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </android.support.v7.widget.RecyclerView>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ll_create"
+        android:clickable="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="20dp"
+        android:layout_gravity="center|bottom"
+        android:background="@mipmap/icon_find_bg">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:src="@mipmap/icon_add"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="新建"/>
+    </LinearLayout>
     <ImageView
         android:id="@+id/btn_music"
         android:clickable="true"
