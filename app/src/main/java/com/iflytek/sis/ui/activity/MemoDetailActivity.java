@@ -7,12 +7,16 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.iflytek.sis.R;
 import com.iflytek.sis.bean.MemoBean;
 import com.iflytek.sis.ui.view.LinedEditText;
 import com.iflytek.sis.utils.Utils;
+
+import org.feezu.liuli.timeselector.TimeSelector;
 
 import java.util.UUID;
 
@@ -26,6 +30,10 @@ public class MemoDetailActivity extends BaseActivity implements View.OnClickList
     LinedEditText memoContent;
     ImageView memoMenu;
     ImageView memoSave;
+    LinearLayout llTip;
+    TextView tipTime;
+    boolean isremind = false;
+    long time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +52,22 @@ public class MemoDetailActivity extends BaseActivity implements View.OnClickList
         memoSave = findViewById(R.id.memo_save);
         memoSave.setOnClickListener(this);
         memoContent = findViewById(R.id.memo_content);
-        memoContent.setPaperColor(getResources().getColor(R.color.colorPrimary));
+        memoContent.setPaperColor(getResources().getColor(R.color.mint_green));
         if (null != memoBean) {
             memoContent.setText(memoBean.getContent());
+            isremind = memoBean.isRemind();
+            time = memoBean.getTime();
         }
+        ImageView btnRemind = findViewById(R.id.btn_remind);
+        btnRemind.setOnClickListener(this);
+        ImageView btnCamera = findViewById(R.id.btn_camera);
+        btnCamera.setOnClickListener(this);
+        llTip = findViewById(R.id.ll_detail_tip);
+        if (isremind){
+            llTip.setVisibility(View.VISIBLE);
+        }
+        tipTime = findViewById(R.id.tv_tip_time);
+        tipTime.setText(Utils.longtime2String(time));
     }
 
     private void initData() {
@@ -85,6 +105,9 @@ public class MemoDetailActivity extends BaseActivity implements View.OnClickList
             case R.id.memo_save:
                 addNewMemo();
                 break;
+            case R.id.btn_remind:
+                showTimeSelector();
+                break;
         }
     }
 
@@ -93,15 +116,33 @@ public class MemoDetailActivity extends BaseActivity implements View.OnClickList
             if (id == null || id.equals("")) {
                 memoBean = new MemoBean();
                 memoBean.setId(Utils.getUUID());
+                memoBean.setRemind(isremind);
+                memoBean.setTime(time);
             }
             mRealm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
+                    if (isremind){
+                        memoBean.setRemind(isremind);
+                        memoBean.setTime(time);
+                    }
                     memoBean.setContent(memoContent.getText().toString());
                     mRealm.copyToRealmOrUpdate(memoBean);
                 }
             });
         }
         this.finish();
+    }
+
+    private void showTimeSelector(){
+        TimeSelector timeSelector = new TimeSelector(this, new TimeSelector.ResultHandler() {
+            @Override
+            public void handle(String time) {
+                MemoDetailActivity.this.time = Utils.getMillionsFromString(time);
+                isremind = true;
+            }
+        },Utils.getCurrentTime(),"2021-12-21 13:14");
+        timeSelector.setIsLoop(false);
+        timeSelector.show();
     }
 }

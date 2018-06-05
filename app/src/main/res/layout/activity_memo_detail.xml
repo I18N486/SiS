@@ -2,57 +2,119 @@
 <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <LinearLayout
-        android:orientation="vertical"
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <LinearLayout
-            android:padding="10dp"
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:id="@+id/memo_menu"
-                android:clickable="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:src="@mipmap/icon_menu"/>
-            <View
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"/>
-            <TextView
-                android:id="@+id/memo_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="title"
-                android:textSize="20sp"/>
-            <View
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"/>
-            <ImageView
-                android:id="@+id/memo_save"
-                android:clickable="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right|center_vertical"
-                android:src="@mipmap/icon_save"/>
-        </LinearLayout>
-        <com.iflytek.sis.ui.view.LinedEditText
-            android:layout_margin="10dp"
-            android:id="@+id/memo_content"
-            android:padding="5dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textSize="18sp"
-            android:gravity="top"
-            android:lineSpacingMultiplier="1.4"
-            android:textColor="@color/colorAccent"
-            android:background="@null"/>
-    </LinearLayout>
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <ImageView
+                    android:id="@+id/memo_menu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:clickable="true"
+                    android:src="@mipmap/icon_menu" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/memo_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="title"
+                    android:textSize="20sp" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <ImageView
+                    android:id="@+id/memo_save"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right|center_vertical"
+                    android:clickable="true"
+                    android:src="@mipmap/icon_save" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/ll_detail_tip"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:src="@mipmap/icon_tip"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="当前已设置定时提醒："
+                    android:textSize="12sp"/>
+                <TextView
+                    android:id="@+id/tv_tip_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="2018-06-06 13:14"
+                    android:textSize="12sp"/>
+            </LinearLayout>
+            <com.iflytek.sis.ui.view.LinedEditText
+                android:id="@+id/memo_content"
+                android:layout_width="match_parent"
+                android:layout_height="600dp"
+                android:layout_margin="10dp"
+                android:background="@null"
+                android:gravity="top"
+                android:lineSpacingMultiplier="1.4"
+                android:padding="5dp"
+                android:textColor="@color/colorAccent"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="15dp">
+
+            <ImageView
+                android:id="@+id/btn_remind"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:clickable="true"
+                android:padding="5dp"
+                android:src="@mipmap/remind" />
+
+            <ImageView
+                android:id="@+id/btn_camera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:padding="5dp"
+                android:src="@mipmap/icon_camera" />
+        </LinearLayout>
+    </FrameLayout>
 
 
 </android.support.v4.widget.DrawerLayout>
