@@ -20,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
 import com.iflytek.sis.R;
+import com.iflytek.sis.SisApplication;
 import com.iflytek.sis.bean.MemoBean;
 import com.iflytek.sis.componant.adapter.MemoAdapter;
 import com.iflytek.sis.utils.Utils;
@@ -32,7 +33,8 @@ import io.realm.RealmResults;
 public class MemoActivity extends BaseActivity implements View.OnClickListener {
 
     RecyclerView memoList;
-    List<MemoBean> memoBeanList;
+    RealmResults<MemoBean> memoBeanList;
+    List<MemoBean> memoBeansList;
     ImageView btnMusic;
     ObjectAnimator animator;
     Realm mRealm;
@@ -42,6 +44,8 @@ public class MemoActivity extends BaseActivity implements View.OnClickListener {
     Button btnCancel;
     LinearLayout mCreate;
     FrameLayout parent;
+    LinearLayoutManager manager;
+    PopupWindow popupWindow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,8 +58,10 @@ public class MemoActivity extends BaseActivity implements View.OnClickListener {
     private void initData() {
         mRealm = Realm.getDefaultInstance();
         memoBeanList = queryAllMemo();
-        adapter = new MemoAdapter(memoBeanList);
+        memoBeansList = mRealm.copyFromRealm(memoBeanList);
+        adapter = new MemoAdapter(memoBeansList);
         setAdapterListener();
+        popupWindow = new PopupWindow(this);
     }
 
     private void initView(){
@@ -65,7 +71,7 @@ public class MemoActivity extends BaseActivity implements View.OnClickListener {
         animator = ObjectAnimator.ofFloat(btnMusic, "rotation", 0.0f, 359.0f);
         Utils.startMusicAnimator(animator);
         memoList = findViewById(R.id.memo_list);
-        LinearLayoutManager manager = new LinearLayoutManager(this);
+        manager = new LinearLayoutManager(this);
         memoList.setLayoutManager(manager);
         memoList.setAdapter(adapter);
         btnFind = findViewById(R.id.btn_find);
@@ -81,9 +87,11 @@ public class MemoActivity extends BaseActivity implements View.OnClickListener {
      * 查询所有数据
      * @return
      */
-    private List<MemoBean> queryAllMemo(){
-        RealmResults<MemoBean> memoBeans = mRealm.where(MemoBean.class).findAll();
-        return mRealm.copyFromRealm(memoBeans);
+    private RealmResults<MemoBean> queryAllMemo(){
+        RealmResults<MemoBean> memoBeans = null;
+        memoBeans = mRealm.where(MemoBean.class).findAll();
+        //return mRealm.copyFromRealm(memoBeans);
+        return memoBeans;
     }
 
 
@@ -93,8 +101,9 @@ public class MemoActivity extends BaseActivity implements View.OnClickListener {
      * @return
      */
     private List<MemoBean> queryFromFind(String condition){
-        RealmResults<MemoBean> memoBeans = mRealm.where(MemoBean.class).contains("content",condition).findAll();
-        return mRealm.copyFromRealm(memoBeans);
+        RealmResults<MemoBean> memoBeans = null;
+        memoBeans = mRealm.where(MemoBean.class).contains("content",condition).findAll();
+        return memoBeans;
     }
 
 
@@ -103,13 +112,17 @@ public class MemoActivity extends BaseActivity implements View.OnClickListener {
      * @param position
      */
     private void deleteItem(final int position){
+        memoBeanList = queryAllMemo();
+        if (memoBeanList==null || memoBeanList.size()==0){
+            return;
+        }
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 memoBeanList.get(position).deleteFromRealm();
             }
         });
-        memoBeanList.remove(position);
+        memoBeansList.remove(position);
         adapter.notifyDataSetChanged();
     }
 
@@ -147,6 +160,7 @@ public class MemoActivity extends BaseActivity implements View.OnClickListener {
 
     private void resumeRecycler(List<MemoBean> memoBeanList){
         adapter = new MemoAdapter(memoBeanList);
+        setAdapterListener();
         memoList.setAdapter(adapter);
     }
 
@@ -178,10 +192,10 @@ public class MemoActivity extends BaseActivity implements View.OnClickListener {
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                cancelChoose(position);
+                popupWindow.dismiss();
             }
         });
-        PopupWindow popupWindow = new PopupWindow(this);
         popupWindow.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
         popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
         popupWindow.setContentView(view);
@@ -189,5 +203,19 @@ public class MemoActivity extends BaseActivity implements View.OnClickListener {
         popupWindow.setOutsideTouchable(false);
         popupWindow.setFocusable(true);
         popupWindow.showAtLocation(parent, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                cancelChoose(position);
+            }
+        });
+    }
+
+    private void cancelChoose(int position){
+        View hodler = manager.findViewByPosition(position);
+        if (hodler != null) {
+            LinearLayout llItem = hodler.findViewById(R.id.ll_memo_item);
+            llItem.setBackgroundColor(SisApplication.getContext().getResources().getColor(R.color.white));
+        }
     }
 }

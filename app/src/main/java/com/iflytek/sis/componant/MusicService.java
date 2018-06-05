@@ -38,26 +38,28 @@ public class MusicService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String tag = intent.getStringExtra("tag");
-        if (tag.equals(Constants.MUSIC_START)) {
-            try {
-                AssetFileDescriptor fileDescriptor = assetManager.openFd(random.nextInt(2)+".mp3");
-                player.setDataSource(fileDescriptor.getFileDescriptor(), fileDescriptor.getStartOffset(),
-                        fileDescriptor.getLength());
-                player.prepare();
-                player.setLooping(true);
-                player.start();
-            } catch (IOException e) {
-                e.printStackTrace();
+        if (intent != null) {
+            String tag = intent.getStringExtra("tag");
+            if (tag.equals(Constants.MUSIC_START)) {
+                try {
+                    AssetFileDescriptor fileDescriptor = assetManager.openFd(random.nextInt(2) + ".mp3");
+                    player.setDataSource(fileDescriptor.getFileDescriptor(), fileDescriptor.getStartOffset(),
+                            fileDescriptor.getLength());
+                    player.prepare();
+                    player.setLooping(true);
+                    player.start();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if (tag.equals(Constants.MUSIC_PAUSE_GOON)) {
+                if (player.isPlaying()) {
+                    player.pause();
+                } else {
+                    player.start();
+                }
+            } else if (tag.equals(Constants.MUSIC_STOP)) {
+                player.stop();
             }
-        } else if (tag.equals(Constants.MUSIC_PAUSE_GOON)){
-            if (player.isPlaying()){
-                player.pause();
-            } else {
-                player.start();
-            }
-        } else if (tag.equals(Constants.MUSIC_STOP)){
-            player.stop();
         }
         return super.onStartCommand(intent, flags, startId);
     }

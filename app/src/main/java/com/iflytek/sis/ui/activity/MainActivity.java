@@ -100,19 +100,19 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 Utils.musicBtnClick(this,animator);
                 break;
             case R.id.btn_add:
-//                for (int i=0;i<5;i++) {
-//                    final MemoBean memoBean = new MemoBean();
-//                    memoBean.setId(i);
-//                    memoBean.setContent("测试realm，这是测试数据！"+i);
-//                    memoBean.setRemind(true);
-//                    memoBean.setTime(System.currentTimeMillis());
-//                    mRealm.executeTransaction(new Realm.Transaction() {
-//                        @Override
-//                        public void execute(Realm realm) {
-//                            mRealm.copyToRealmOrUpdate(memoBean);
-//                        }
-//                    });
-//                }
+                for (int i=0;i<5;i++) {
+                    final MemoBean memoBean = new MemoBean();
+                    memoBean.setId(i);
+                    memoBean.setContent("测试realm，这是测试数据！"+i);
+                    memoBean.setRemind(true);
+                    memoBean.setTime(System.currentTimeMillis());
+                    mRealm.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            mRealm.copyToRealmOrUpdate(memoBean);
+                        }
+                    });
+                }
                 MemoActivity.actionStart(this);
                 break;
         }
