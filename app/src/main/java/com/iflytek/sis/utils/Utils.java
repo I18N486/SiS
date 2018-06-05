@@ -8,6 +8,8 @@ import android.view.animation.LinearInterpolator;
 import com.iflytek.sis.componant.MusicService;
 import com.iflytek.sis.constant.Constants;
 
+import java.util.UUID;
+
 /**
  * Created by DELL-5490 on 2018/5/31.
  */
@@ -46,5 +48,17 @@ public class Utils {
                 animator.pause();
             }
         }
+    }
+
+
+    /**
+     * 获取uuid，作为表的主键
+     * @return
+     */
+    public static String getUUID(){
+        UUID uuid=UUID.randomUUID();
+        String str = uuid.toString();
+        String uuidStr=str.replace("-", "");
+        return uuidStr;
     }
 }

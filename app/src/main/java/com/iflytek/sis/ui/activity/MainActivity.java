@@ -102,8 +102,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             case R.id.btn_add:
                 for (int i=0;i<5;i++) {
                     final MemoBean memoBean = new MemoBean();
-                    memoBean.setId(i);
-                    memoBean.setContent("测试realm，这是测试数据！"+i);
+                    memoBean.setId(Utils.getUUID());
+                    memoBean.setContent(i+"测试realm，这是测试数据！");
                     memoBean.setRemind(true);
                     memoBean.setTime(System.currentTimeMillis());
                     mRealm.executeTransaction(new Realm.Transaction() {

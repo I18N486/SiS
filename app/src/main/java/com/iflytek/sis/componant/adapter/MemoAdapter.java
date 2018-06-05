@@ -40,6 +40,7 @@ public class MemoAdapter extends RecyclerView.Adapter<MemoAdapter.ViewHodler> {
     public ViewHodler onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_memo_list,null);
         ViewHodler holder = new ViewHodler(view);
+        holder.setIsRecyclable(false);
         return holder;
     }
 

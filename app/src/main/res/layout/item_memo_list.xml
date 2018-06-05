@@ -20,7 +20,8 @@
             android:text="test title"
             android:layout_gravity="center_vertical"
             android:textColor="@color/colorAccent"
-            android:maxLength="20"
+            android:maxLength="12"
+            android:maxLines="1"
             android:textSize="20sp"/>
         <View
             android:layout_width="0dp"

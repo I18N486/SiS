@@ -4,6 +4,8 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -147,9 +149,15 @@ public class MemoActivity extends BaseActivity implements View.OnClickListener {
                 resumeRecycler(queryAllMemo());
                 break;
             case R.id.ll_create:
-                MemoDetailActivity.actionStart(this,-1);
+                MemoDetailActivity.actionStart(this,"");
                 break;
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        resumeRecycler(queryAllMemo());
     }
 
     @Override
@@ -186,6 +194,7 @@ public class MemoActivity extends BaseActivity implements View.OnClickListener {
             @Override
             public void onClick(View view) {
                 deleteItem(position);
+                popupWindow.dismiss();
             }
         });
         LinearLayout cancel = view.findViewById(R.id.item_cancel);

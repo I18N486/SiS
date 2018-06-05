@@ -6,27 +6,41 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        <LinearLayout
+            android:padding="10dp"
+            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <TextView
-                android:id="@+id/toolbar_title"
-                android:layout_gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:text="title"
-                android:textColor="@color/colorAccent"/>
             <ImageView
-                android:id="@+id/btn_menu"
+                android:id="@+id/memo_menu"
                 android:clickable="true"
-                android:paddingRight="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
+                android:layout_gravity="center_vertical"
                 android:src="@mipmap/icon_menu"/>
-        </android.support.v7.widget.Toolbar>
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:id="@+id/memo_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="title"
+                android:textSize="20sp"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"/>
+            <ImageView
+                android:id="@+id/memo_save"
+                android:clickable="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|center_vertical"
+                android:src="@mipmap/icon_save"/>
+        </LinearLayout>
         <com.iflytek.sis.ui.view.LinedEditText
             android:layout_margin="10dp"
             android:id="@+id/memo_content"
@@ -35,9 +49,8 @@
             android:layout_height="match_parent"
             android:textSize="18sp"
             android:gravity="top"
-            android:lineSpacingMultiplier="1.5"
+            android:lineSpacingMultiplier="1.4"
             android:textColor="@color/colorAccent"
-            android:text="testtesttttsteet"
             android:background="@null"/>
     </LinearLayout>
 
