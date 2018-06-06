@@ -76,6 +76,16 @@
                     android:layout_gravity="center_vertical"
                     android:text="2018-06-06 13:14"
                     android:textSize="12sp"/>
+                <Button
+                    android:id="@+id/remind_cancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center"
+                    android:background="@null"
+                    android:text="取消提醒"
+                    android:textSize="12sp"
+                    android:textColor="@color/mint_green"/>
             </LinearLayout>
             <com.iflytek.sis.ui.view.LinedEditText
                 android:id="@+id/memo_content"

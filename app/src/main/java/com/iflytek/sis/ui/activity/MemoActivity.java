@@ -167,6 +167,7 @@ public class MemoActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void resumeRecycler(List<MemoBean> memoBeanList){
+        memoBeansList = mRealm.copyFromRealm(memoBeanList);
         adapter = new MemoAdapter(memoBeanList);
         setAdapterListener();
         memoList.setAdapter(adapter);

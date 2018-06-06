@@ -24,7 +24,18 @@
             android:exported="true" />
 
         <activity android:name=".ui.activity.MemoActivity" />
-        <activity android:name=".ui.activity.MemoDetailActivity"></activity>
+        <activity android:name=".ui.activity.MemoDetailActivity" />
+
+        <receiver
+            android:name=".componant.broadcast.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.zst.love.lsq.RING"/>
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".ui.activity.RingActivity"></activity>
     </application>
 
 </manifest>
