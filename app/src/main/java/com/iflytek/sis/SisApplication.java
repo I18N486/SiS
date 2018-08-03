@@ -1,7 +1,7 @@
 package com.iflytek.sis;
 
-import android.app.Application;
 import android.content.Context;
+import android.support.multidex.MultiDexApplication;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -11,7 +11,7 @@ import io.realm.RealmConfiguration;
  * Created by DELL-5490 on 2018/5/30.
  */
 
-public class SisApplication extends Application {
+public class SisApplication extends MultiDexApplication {
 
     private static Context context;
 
