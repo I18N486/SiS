@@ -87,7 +87,7 @@
                     android:textSize="12sp"
                     android:textColor="@color/mint_green"/>
             </LinearLayout>
-            <com.iflytek.sis.ui.view.LinedEditText
+            <com.iflytek.zst.taoqi.ui.view.LinedEditText
                 android:id="@+id/memo_content"
                 android:layout_width="match_parent"
                 android:layout_height="600dp"

@@ -64,7 +64,7 @@ public class MainActivity extends BaseActivity {
 //        intent.addCategory(Intent.CATEGORY_OPENABLE);
 //        startActivityForResult(intent, 1);
         MusicService.actionStart(this, Constants.MUSIC_START);
-        TestEventbusActivity.actionStart(this);
+        //TestEventbusActivity.actionStart(this);
     }
 
     private void initData() {
