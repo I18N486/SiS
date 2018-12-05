@@ -2,12 +2,80 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <ImageView
+        android:id="@+id/main_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-    <Button
-        android:id="@+id/btn_add"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="add"/>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center_horizontal"
+            android:columnCount="3"
+            android:padding="10dp">
+            <TextView
+                android:id="@+id/btn_memo"
+                android:clickable="true"
+                android:padding="10dp"
+                android:layout_columnWeight = "1"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="备忘录"
+                android:background="@color/colorPrimary"/>
+            <TextView
+                android:id="@+id/btn_diary"
+                android:clickable="true"
+                android:padding="10dp"
+                android:layout_columnWeight = "1"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="心情日记"
+                android:background="@color/colorPrimary"/>
+            <TextView
+                android:id="@+id/btn_transfer"
+                android:clickable="true"
+                android:padding="10dp"
+                android:layout_columnWeight = "1"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="即时听写"
+                android:background="@color/colorPrimary"/>
+            <TextView
+                android:id="@+id/btn_location"
+                android:layout_marginTop="20dp"
+                android:clickable="true"
+                android:padding="10dp"
+                android:layout_columnWeight = "1"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="发现爱"
+                android:background="@color/colorPrimary"/>
+            <TextView
+                android:id="@+id/btn_test"
+                android:layout_marginTop="20dp"
+                android:clickable="true"
+                android:padding="10dp"
+                android:layout_columnWeight = "1"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="test"
+                android:background="@color/colorPrimary"/>
+        </GridLayout>
+    </ScrollView>
     <ImageView
         android:id="@+id/btn_music"
         android:clickable="true"
