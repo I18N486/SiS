@@ -17,14 +17,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.iflytek.zst.taoqi.R;
 import com.iflytek.zst.taoqi.bean.MemoBean;
 import com.iflytek.zst.taoqi.componant.FloatWindowService;
 import com.iflytek.zst.taoqi.componant.MusicService;
 import com.iflytek.zst.taoqi.constant.Constants;
+import com.iflytek.zst.taoqi.net.OkGoUtils;
+import com.iflytek.zst.taoqi.storage.sharedpreferences.MySharedpreferences;
 import com.iflytek.zst.taoqi.test.testeventbus.TestEventbusActivity;
 import com.iflytek.zst.taoqi.ui.activity.base.BaseActivity;
 import com.iflytek.zst.taoqi.utils.Utils;
+import com.lzy.okgo.callback.StringCallback;
+import com.lzy.okgo.model.Response;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -58,6 +64,7 @@ public class MainActivity extends BaseActivity {
         initData();
         initView();
         requesPermission();
+        loadBingImage();
 //        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 //        //设置类型
 //        intent.setType("audio/*");
@@ -140,6 +147,7 @@ public class MainActivity extends BaseActivity {
                 MemoActivity.actionStart(this);
                 break;
             case R.id.btn_transfer:
+                TransferActivity.actionStart(this);
                 break;
             case R.id.btn_location:
                 GdMapActivity.actionStart(this);
@@ -181,6 +189,22 @@ public class MainActivity extends BaseActivity {
         } else {
             startActivityForResult(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                     Uri.parse("package:" + getPackageName())), 0);
+        }
+    }
+
+    public void loadBingImage(){
+        String imageUrl = MySharedpreferences.getInstance().getString(Constants.BIYING_IMAGEKEY,null);
+        if (imageUrl != null){
+            Glide.with(MainActivity.this).load(imageUrl).into(mainBackground);
+        } else {
+            OkGoUtils.sendOkGoRequest(Constants.BIYING_IMAGEURL, new StringCallback() {
+                @Override
+                public void onSuccess(Response<String> response) {
+                    String imageUrl = response.body();
+                    MySharedpreferences.getInstance().putString(Constants.BIYING_IMAGEKEY, imageUrl);
+                    Glide.with(MainActivity.this).load(imageUrl).into(mainBackground);
+                }
+            });
         }
     }
 }

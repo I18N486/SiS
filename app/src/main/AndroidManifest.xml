@@ -20,7 +20,7 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
-        android:name="com.iflytek.zst.taoqi.TaoQiApplication"
+        android:name=".TaoQiApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -31,7 +31,7 @@
             android:name="com.amap.api.v2.apikey"
             android:value="310558ab9660f1c2db2934fc52807cec" />
 
-        <activity android:name="com.iflytek.zst.taoqi.ui.activity.MainActivity">
+        <activity android:name=".ui.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -40,15 +40,15 @@
         </activity>
 
         <service
-            android:name="com.iflytek.zst.taoqi.componant.MusicService"
+            android:name=".componant.MusicService"
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name="com.iflytek.zst.taoqi.ui.activity.MemoActivity" />
-        <activity android:name="com.iflytek.zst.taoqi.ui.activity.MemoDetailActivity" />
+        <activity android:name=".ui.activity.MemoActivity" />
+        <activity android:name=".ui.activity.MemoDetailActivity" />
 
         <receiver
-            android:name="com.iflytek.zst.taoqi.componant.broadcast.AlarmReceiver"
+            android:name=".componant.broadcast.AlarmReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -56,18 +56,19 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name="com.iflytek.zst.taoqi.ui.activity.RingActivity" />
-        <activity android:name="com.iflytek.zst.taoqi.ui.activity.GdMapActivity" />
+        <activity android:name=".ui.activity.RingActivity" />
+        <activity android:name=".ui.activity.GdMapActivity" />
 
         <service
-            android:name="com.iflytek.zst.taoqi.componant.FloatWindowService"
+            android:name=".componant.FloatWindowService"
             android:enabled="true"
             android:exported="true" />
         <service
-            android:name="com.iflytek.zst.taoqi.test.testeventbus.MyIntentService"
+            android:name=".test.testeventbus.MyIntentService"
             android:exported="false" />
 
-        <activity android:name="com.iflytek.zst.taoqi.test.testeventbus.TestEventbusActivity"></activity>
+        <activity android:name=".test.testeventbus.TestEventbusActivity" />
+        <activity android:name=".ui.activity.TransferActivity"></activity>
     </application>
 
 </manifest>

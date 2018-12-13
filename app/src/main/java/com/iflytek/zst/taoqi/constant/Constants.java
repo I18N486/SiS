@@ -10,4 +10,9 @@ public class Constants {
     public static final String MUSIC_START = "START";
     public static final String MUSIC_PAUSE_GOON = "PAUSE&GOON";
     public static final String MUSIC_STOP = "STOP";
+
+    //必应每日图片url
+    public static final String BIYING_IMAGEURL = "http://guolin.tech/api/bing_pic";
+    //图片存储key（sharedpreferences）
+    public static final String BIYING_IMAGEKEY = "by_image_key";
 }
