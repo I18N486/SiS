@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 
+import com.iflytek.zst.dictationibrary.bean.MyResultBean;
 import com.iflytek.zst.dictationibrary.impl.DictationResultListener;
 import com.iflytek.zst.dictationibrary.online.RecognizerEngine;
 import com.iflytek.zst.taoqi.R;
@@ -64,21 +65,57 @@ public class TransferActivity extends BaseActivity {
 
         @Override
         public void onSentenceUpdate(String content, boolean isLast) {
+            if (conversationItem == null || orisTemp.length()>Constants.MAXSENTENCELENGTH){
+                //说明是首次识别结果返回，新建item;或者是长度超过最大限制
+                conversationItem = new VoiceTextBean();
+                conversationList.add(conversationItem);
+                //清空内容缓存
+                orisTemp.setLength(0);
+                transTemp.setLength(0);
+            }
+            conversationItem.setOris(orisTemp.toString()+content);
+            conversationItem.updateLength = content.length();
+            conversatinAdapter.notifyDataSetChanged();
 
         }
 
         @Override
         public void onSentenceEnd(String content, boolean isLast) {
-            if (orisContent == null || orisContent.length()> Constants.MAXSENTENCELENGTH){
-                //说明是首次结果返回，新建item;或者识别字串长度超过限制
+            if (conversationItem == null){
+                //说明是首次识别结果返回，新建item
                 conversationItem = new VoiceTextBean();
+                conversationList.add(conversationItem);
             }
-            orisContent = orisTemp.append(content).toString();
+            conversationItem.setOris(orisTemp.append(content).toString());
+            conversationItem.updateLength = 0;
+            conversatinAdapter.notifyDataSetChanged();
         }
 
         @Override
         public void onError(int errorCode) {
 
+        }
+
+        @Override
+        public void onSentenceResult(MyResultBean myResultBean) {
+            if (myResultBean.pgs.equals(com.iflytek.zst.dictationibrary.constants.Constants.SENTENCEUPDATE)){
+                orisContent = myResultBean.content;
+                conversationItem.setOris(orisTemp.toString()+orisContent);
+                conversationItem.updateLength = orisContent.length();
+                conversationList.add(conversationItem);
+                conversatinAdapter.notifyDataSetChanged();
+            } else if (myResultBean.pgs.equals(com.iflytek.zst.dictationibrary.constants.Constants.SENTENCEEND)){
+                orisTemp.append(orisContent);
+                orisContent = myResultBean.content;
+                conversationItem.setOris(orisTemp.toString()+orisContent);
+                if (myResultBean.isEnd){
+                    conversationItem.updateLength = 0;
+                } else {
+                    conversationItem.updateLength = orisContent.length();
+                }
+                conversationList.add(conversationItem);
+                conversatinAdapter.notifyDataSetChanged();
+            }
         }
     };
 

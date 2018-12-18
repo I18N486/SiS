@@ -12,7 +12,7 @@ public class VoiceTextBean {
     @PrimaryKey
     String id;
 
-    String name;
+    String name = "test";
     String oris = "";
     String trans = "";
     int time;

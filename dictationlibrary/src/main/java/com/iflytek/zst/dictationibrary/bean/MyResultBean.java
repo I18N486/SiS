@@ -8,8 +8,9 @@ import android.os.Parcelable;
  */
 
 public class MyResultBean implements Parcelable{
-    public int type;
+    public String pgs;
     public String content;
+    public int replace;
     public boolean isEnd;
 
     public MyResultBean(){
@@ -17,8 +18,9 @@ public class MyResultBean implements Parcelable{
     }
 
     protected MyResultBean(Parcel in) {
-        type = in.readInt();
+        pgs = in.readString();
         content = in.readString();
+        replace = in.readInt();
         isEnd = in.readByte() != 0;
     }
 
@@ -42,8 +44,19 @@ public class MyResultBean implements Parcelable{
     @Override
     public void writeToParcel(Parcel parcel, int i) {
 
-        parcel.writeInt(type);
+        parcel.writeString(pgs);
         parcel.writeString(content);
+        parcel.writeInt(replace);
         parcel.writeByte((byte) (isEnd ? 1 : 0));
+    }
+
+    @Override
+    public String toString() {
+        return "MyResultBean{" +
+                "pgs=" + pgs +
+                ", content='" + content + '\'' +
+                ", replace=" + replace +
+                ", isEnd=" + isEnd +
+                '}';
     }
 }

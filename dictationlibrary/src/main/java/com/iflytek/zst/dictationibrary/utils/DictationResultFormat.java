@@ -13,21 +13,24 @@ import java.util.List;
 
 public class DictationResultFormat {
     public static MyResultBean formatIatResult(String jsonData){
+        int start = 0;
+        int end = 0;
         MyResultBean myResultBean = new MyResultBean();
         StringBuilder contentBuffer = new StringBuilder();
         DictationResultbean dictationResultbean = new Gson().fromJson(jsonData,DictationResultbean.class);
-        List<DictationResultbean.WsBean.CwBean> cwBeans = dictationResultbean.getWs().get(0).getCw();
-        if (dictationResultbean.getPgs().equals(Constants.SENTENCEUPDATE)){
-            for (int i = dictationResultbean.getRg().get(0);i<cwBeans.size();i++){
-                contentBuffer.append(cwBeans.get(i).getW());
-            }
-            myResultBean.type = Constants.TYPE_UPDATE;
-        } else if (dictationResultbean.getPgs().equals(Constants.SENTENCEEND)){
-            for (int i = 0;i<cwBeans.size();i++){
-                contentBuffer.append(cwBeans.get(i).getW());
-            }
-            myResultBean.type = Constants.TYPE_END;
+        List<DictationResultbean.WsBean> wsBeans = dictationResultbean.getWs();
+        if (dictationResultbean.getRg().size()>0){
+            start = dictationResultbean.getRg().get(0);
+            end = dictationResultbean.getRg().get(1);
         }
+        for (int i = 0;i<wsBeans.size();i++){
+            //get（0），默认取候选词列表中的第一个
+            contentBuffer.append(wsBeans.get(i).getCw().get(0).getW());
+            if (dictationResultbean.getPgs().equals(Constants.SENTENCEUPDATE) && i == end-start){
+                myResultBean.replace = contentBuffer.toString().length();
+            }
+        }
+        myResultBean.pgs = dictationResultbean.getPgs();
         myResultBean.content = contentBuffer.toString();
         myResultBean.isEnd = dictationResultbean.isLs();
         return myResultBean;

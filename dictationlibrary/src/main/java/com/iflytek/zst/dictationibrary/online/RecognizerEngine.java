@@ -16,7 +16,10 @@ import com.iflytek.zst.dictationibrary.constants.Constants;
 import com.iflytek.zst.dictationibrary.impl.DictationResultListener;
 import com.iflytek.zst.dictationibrary.impl.IMscUtil;
 import com.iflytek.zst.dictationibrary.utils.DictationResultFormat;
+import com.iflytek.zst.dictationibrary.utils.JsonParser;
 import com.iflytek.zst.dictationibrary.utils.MyLogUtils;
+
+import java.util.HashMap;
 
 /**
  * Created by DELL-5490 on 2018/12/17.
@@ -99,8 +102,8 @@ public class RecognizerEngine {
         // 设置标点符号,设置为"0"返回结果无标点,设置为"1"返回结果有标点
         mAsr.setParameter(SpeechConstant.ASR_PTT, "1");
 
-//        //开启pgs功能，实时转写
-//        mAsr.setParameter(SpeechConstant.ASR_DWA, "wpgs");
+        //开启pgs功能，实时转写
+        mAsr.setParameter(SpeechConstant.ASR_DWA, "wpgs");
 
         // 设置语言
         mAsr.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
@@ -151,13 +154,25 @@ public class RecognizerEngine {
         public void onResult(RecognizerResult recognizerResult, boolean b) {
             MyLogUtils.d(TAG,"原始识别结果："+recognizerResult.getResultString());
             MyResultBean myResultBean = DictationResultFormat.formatIatResult(recognizerResult.getResultString());
-            if (myResultBean.type == Constants.TYPE_UPDATE){
-                lastContent = myResultBean.content;
-                resultListener.onSentenceUpdate(lastContent,myResultBean.isEnd);
-            } else if (myResultBean.type == Constants.TYPE_END){
-                resultListener.onSentenceEnd(lastContent+myResultBean.content,myResultBean.isEnd);
-                lastContent = "";
-            }
+            MyLogUtils.d(TAG,"数据格式化后："+myResultBean.toString());
+            HashMap<String,String> mAsrResultsMap = JsonParser.parseIatResults(recognizerResult.getResultString());
+            MyLogUtils.d(TAG,"二次数据格式化后："+mAsrResultsMap.toString());
+            resultListener.onSentenceResult(myResultBean);
+
+//            if (myResultBean.type == Constants.TYPE_UPDATE){
+//                lastContent = myResultBean.content;
+//                resultListener.onSentenceUpdate(lastContent,myResultBean.isEnd);
+//            } else if (myResultBean.type == Constants.TYPE_END){
+////                if (myResultBean.isEnd) {
+////                    //如果是结束会话，最后一次apd结果直接作为最终字串
+////                    resultListener.onSentenceEnd(lastContent + myResultBean.content, myResultBean.isEnd);
+////                } else {
+////                    //不是结束会话，中间子句apd不作为最终字串
+////                    resultListener.onSentenceEnd(lastContent, myResultBean.isEnd);
+////                }
+//                resultListener.onSentenceEnd(lastContent + myResultBean.content, myResultBean.isEnd);
+//                lastContent = "";
+//            }
         }
 
         @Override
