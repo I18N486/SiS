@@ -16,6 +16,7 @@ import com.iflytek.zst.dictationibrary.online.RecognizerEngine;
 import com.iflytek.zst.taoqi.R;
 import com.iflytek.zst.taoqi.bean.VoiceTextBean;
 import com.iflytek.zst.taoqi.componant.adapter.VoiceTextAdapter;
+import com.iflytek.zst.taoqi.constant.Constants;
 import com.iflytek.zst.taoqi.ui.activity.base.BaseActivity;
 
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class TransferActivity extends BaseActivity {
 
     private int orisUpdateLength = 0;
     private int transUpdateLength = 0;
-    private String orisContent;
+    private String orisContent = null;
     private String transContent;
     private StringBuilder orisTemp = new StringBuilder();
     private StringBuilder transTemp = new StringBuilder();
@@ -68,7 +69,11 @@ public class TransferActivity extends BaseActivity {
 
         @Override
         public void onSentenceEnd(String content, boolean isLast) {
-
+            if (orisContent == null || orisContent.length()> Constants.MAXSENTENCELENGTH){
+                //说明是首次结果返回，新建item;或者识别字串长度超过限制
+                conversationItem = new VoiceTextBean();
+            }
+            orisContent = orisTemp.append(content).toString();
         }
 
         @Override

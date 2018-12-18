@@ -28,4 +28,7 @@ public class Constants {
     public static final String LANGUAGE_FRENCH = "法";
     public static final String LANGUAGE_SPANISH = "西";
     public static final String LANGUAGE_RUSSIAN = "俄";
+
+    //每段会话最长字数限制
+    public static final int MAXSENTENCELENGTH = 200;
 }
