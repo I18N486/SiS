@@ -19,6 +19,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.iflytek.zst.dictationibrary.impl.IMscUtil;
+import com.iflytek.zst.dictationibrary.online.RecognizerEngine;
 import com.iflytek.zst.taoqi.R;
 import com.iflytek.zst.taoqi.bean.MemoBean;
 import com.iflytek.zst.taoqi.componant.FloatWindowService;
@@ -64,7 +66,7 @@ public class MainActivity extends BaseActivity {
         initData();
         initView();
         requesPermission();
-        loadBingImage();
+        OkGoUtils.loadBingImage(this,mainBackground);
 //        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 //        //设置类型
 //        intent.setType("audio/*");
@@ -169,7 +171,9 @@ public class MainActivity extends BaseActivity {
                             Manifest.permission.WRITE_EXTERNAL_STORAGE,
                             Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_WIFI_STATE,
                             Manifest.permission.READ_PHONE_STATE, Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.SYSTEM_ALERT_WINDOW
+                            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.SYSTEM_ALERT_WINDOW,
+                            Manifest.permission.RECORD_AUDIO,Manifest.permission.CHANGE_NETWORK_STATE,
+                            Manifest.permission.WRITE_SETTINGS,Manifest.permission.READ_EXTERNAL_STORAGE
                     }, 1001);
                 }
             }
@@ -189,22 +193,6 @@ public class MainActivity extends BaseActivity {
         } else {
             startActivityForResult(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                     Uri.parse("package:" + getPackageName())), 0);
-        }
-    }
-
-    public void loadBingImage(){
-        String imageUrl = MySharedpreferences.getInstance().getString(Constants.BIYING_IMAGEKEY,null);
-        if (imageUrl != null){
-            Glide.with(MainActivity.this).load(imageUrl).into(mainBackground);
-        } else {
-            OkGoUtils.sendOkGoRequest(Constants.BIYING_IMAGEURL, new StringCallback() {
-                @Override
-                public void onSuccess(Response<String> response) {
-                    String imageUrl = response.body();
-                    MySharedpreferences.getInstance().putString(Constants.BIYING_IMAGEKEY, imageUrl);
-                    Glide.with(MainActivity.this).load(imageUrl).into(mainBackground);
-                }
-            });
         }
     }
 }

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginEnd="10px"
+    android:paddingTop="30px"
+    android:paddingBottom="30px">
+
+
+    <TextView
+        android:id="@+id/voice_speaker_name"
+        android:layout_width="120px"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20px"
+        android:ellipsize="end"
+        android:gravity="right"
+        android:singleLine="true"
+        android:text="主持人你"
+        android:textColor="@color/color_white"
+        android:textSize="30px" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="15px"
+        android:text=":"
+        android:textColor="@color/color_white"
+        android:textSize="30px" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5px">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/icon_yuan" />
+
+
+            <TextView
+                android:layout_marginLeft="15px"
+                android:id="@+id/voice_oris_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textColor="@color/color_white"
+                android:textSize="30px" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/voice_trans_ll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5px"
+            android:layout_marginTop="20px">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/icon_yi" />
+
+            <TextView
+                android:id="@+id/voice_trans_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="15px"
+                android:text="This is the recognition of the string. What's the weather like today?"
+                android:textColor="@color/color_white"
+                android:textSize="30px" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

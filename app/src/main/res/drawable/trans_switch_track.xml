@@ -5,12 +5,12 @@
             android:shape="rectangle">
             <corners android:radius="20dp" />
             <size
-                android:width="80dp"
-                android:height="40dp"/>
+                android:width="60dp"
+                android:height="30dp"/>
             <stroke
                 android:width="5dp"
                 android:color="@color/transparent" />
-            <solid android:color="@color/color_498eff" />
+            <solid android:color="@color/mint_green" />
         </shape>
     </item>
     <item>
@@ -20,8 +20,8 @@
                 android:width="5dp"
                 android:color="@color/transparent" />
             <size
-                android:width="80dp"
-                android:height="40dp"/>
+                android:width="60dp"
+                android:height="30dp"/>
             <corners android:radius="20dp" />
             <solid android:color="@color/color_707070" />
         </shape>
