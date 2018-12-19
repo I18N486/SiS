@@ -1,4 +1,4 @@
-package com.iflytek.zst.dictationibrary;
+package com.iflytek.zst.dictationlibrary;
 
 import org.junit.Test;
 

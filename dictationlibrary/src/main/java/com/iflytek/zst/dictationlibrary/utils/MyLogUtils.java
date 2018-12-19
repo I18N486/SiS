@@ -1,4 +1,4 @@
-package com.iflytek.zst.dictationibrary.utils;
+package com.iflytek.zst.dictationlibrary.utils;
 
 /**
  * Created by DELL-5490 on 2018/12/17.

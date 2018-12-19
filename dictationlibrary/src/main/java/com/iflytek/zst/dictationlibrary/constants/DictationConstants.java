@@ -1,10 +1,10 @@
-package com.iflytek.zst.dictationibrary.constants;
+package com.iflytek.zst.dictationlibrary.constants;
 
 /**
  * Created by DELL-5490 on 2018/12/18.
  */
 
-public class Constants {
+public class DictationConstants {
 
     public static final String SENTENCEUPDATE = "rpl";
     public static final String SENTENCEEND = "apd";

@@ -3,17 +3,21 @@ package com.iflytek.zst.taoqi.ui.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 
-import com.iflytek.zst.dictationibrary.bean.MyResultBean;
-import com.iflytek.zst.dictationibrary.impl.DictationResultListener;
-import com.iflytek.zst.dictationibrary.online.RecognizerEngine;
+import com.bumptech.glide.Glide;
+import com.iflytek.zst.dictationlibrary.bean.MyResultBean;
+import com.iflytek.zst.dictationlibrary.constants.DictationConstants;
+import com.iflytek.zst.dictationlibrary.impl.DictationResultListener;
+import com.iflytek.zst.dictationlibrary.online.RecognizerEngine;
 import com.iflytek.zst.taoqi.R;
 import com.iflytek.zst.taoqi.bean.VoiceTextBean;
 import com.iflytek.zst.taoqi.componant.adapter.VoiceTextAdapter;
@@ -25,6 +29,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 
 public class TransferActivity extends BaseActivity {
@@ -34,7 +39,7 @@ public class TransferActivity extends BaseActivity {
     @BindView(R.id.language_kind)
     Spinner languageKind;
     @BindView(R.id.start_transfer)
-    Button startTransfer;
+    ImageView startTransfer;
     @BindView(R.id.trans_switch)
     Switch transSwitch;
     @BindView(R.id.transfer_background)
@@ -42,9 +47,7 @@ public class TransferActivity extends BaseActivity {
 
     private RecognizerEngine recognizerEngine;
 
-    private int orisUpdateLength = 0;
-    private int transUpdateLength = 0;
-    private String orisContent = null;
+    private String orisContent = "";
     private String transContent;
     private StringBuilder orisTemp = new StringBuilder();
     private StringBuilder transTemp = new StringBuilder();
@@ -64,56 +67,58 @@ public class TransferActivity extends BaseActivity {
         }
 
         @Override
-        public void onSentenceUpdate(String content, boolean isLast) {
-            if (conversationItem == null || orisTemp.length()>Constants.MAXSENTENCELENGTH){
-                //说明是首次识别结果返回，新建item;或者是长度超过最大限制
-                conversationItem = new VoiceTextBean();
-                conversationList.add(conversationItem);
-                //清空内容缓存
-                orisTemp.setLength(0);
-                transTemp.setLength(0);
-            }
-            conversationItem.setOris(orisTemp.toString()+content);
-            conversationItem.updateLength = content.length();
-            conversatinAdapter.notifyDataSetChanged();
-
-        }
-
-        @Override
-        public void onSentenceEnd(String content, boolean isLast) {
-            if (conversationItem == null){
-                //说明是首次识别结果返回，新建item
-                conversationItem = new VoiceTextBean();
-                conversationList.add(conversationItem);
-            }
-            conversationItem.setOris(orisTemp.append(content).toString());
-            conversationItem.updateLength = 0;
-            conversatinAdapter.notifyDataSetChanged();
-        }
-
-        @Override
         public void onError(int errorCode) {
 
         }
 
         @Override
-        public void onSentenceResult(MyResultBean myResultBean) {
-            if (myResultBean.pgs.equals(com.iflytek.zst.dictationibrary.constants.Constants.SENTENCEUPDATE)){
-                orisContent = myResultBean.content;
+        public void onSentenceResult(MyResultBean orisBean) {
+            if (conversationItem == null){
+                //首次消息返回，新建item
+                createNewItem();
+            }
+            if (orisBean.pgs.equals(DictationConstants.SENTENCEUPDATE)){
+                if (orisTemp.toString().length()>Constants.MAXSENTENCELENGTH){
+                    //item字串长度达到最大限制，新建一条item，继续显示
+                    createNewItem();
+                }
+                orisContent = orisBean.content;
                 conversationItem.setOris(orisTemp.toString()+orisContent);
-                conversationItem.updateLength = orisContent.length();
-                conversationList.add(conversationItem);
+                conversationItem.updateLength = orisContent.length()-orisBean.replace;
                 conversatinAdapter.notifyDataSetChanged();
-            } else if (myResultBean.pgs.equals(com.iflytek.zst.dictationibrary.constants.Constants.SENTENCEEND)){
+            } else if (orisBean.pgs.equals(DictationConstants.SENTENCEEND)){
                 orisTemp.append(orisContent);
-                orisContent = myResultBean.content;
+                orisContent = orisBean.content;
                 conversationItem.setOris(orisTemp.toString()+orisContent);
-                if (myResultBean.isEnd){
+                if (orisBean.isEnd){
                     conversationItem.updateLength = 0;
                 } else {
                     conversationItem.updateLength = orisContent.length();
                 }
-                conversationList.add(conversationItem);
+                conversatinAdapter.notifyDataSetChanged();
+            }
+        }
+
+        @Override
+        public void onTransResult(MyResultBean transBean) {
+            if (conversationItem == null){
+                //首次消息返回，新建item
+                createNewItem();
+            }
+            if (transBean.pgs.equals(DictationConstants.SENTENCEUPDATE)){
+                transContent = transBean.content;
+                conversationItem.setTrans(transTemp.toString()+transContent);
+                //conversationItem.updateLength = orisContent.length()-orisBean.replace;
+                conversatinAdapter.notifyDataSetChanged();
+            } else if (transBean.pgs.equals(DictationConstants.SENTENCEEND)){
+                transTemp.append(transContent);
+                transContent = transBean.content;
+                conversationItem.setTrans(transTemp.toString()+transContent);
+//                if (transBean.isEnd){
+//                    conversationItem.updateLength = 0;
+//                } else {
+//                    conversationItem.updateLength = orisContent.length();
+//                }
                 conversatinAdapter.notifyDataSetChanged();
             }
         }
@@ -141,16 +146,78 @@ public class TransferActivity extends BaseActivity {
     }
 
     public void startTransfer(){
-        recognizerEngine = RecognizerEngine.getInstance();
-        recognizerEngine.startRecogn(dictationResultListener,null);
+        Glide.with(this).load(R.drawable.meetting_speeker_voice2).into(startTransfer);
+        if (recognizerEngine == null) {
+            recognizerEngine = RecognizerEngine.getInstance();
+        }
+        recognizerEngine.startRecognWithPgs(dictationResultListener,null);
     }
 
+    public void stopTransfer(){
+        startTransfer.setImageResource(R.mipmap.voice_begin_mic);
+        startTransfer.setClickable(false);
+        if (recognizerEngine != null){
+            recognizerEngine.stopRecogn(new Handler(){
+                @Override
+                public void handleMessage(Message msg) {
+                    super.handleMessage(msg);
+                    if (msg.what == Constants.WHAT_DICTATIONEND){
+                        destoryItem();
+                        startTransfer.setClickable(true);
+                    }
+                }
+            },Constants.WHAT_DICTATIONEND);
+        }
+    }
+
+    /**
+     * 新建一条item
+     */
+    public void createNewItem(){
+        //清空字串缓存，追加一个""是为了防止null作为字串显示出来
+        orisTemp.setLength(0);
+        orisTemp.append("");
+        transTemp.setLength(0);
+        transTemp.append("");
+        //重置内容字串
+        orisContent = "";
+        transContent = "";
+        //新建item
+        conversationItem = new VoiceTextBean();
+        conversationList.add(conversationItem);
+    }
+
+    /**
+     * 销毁item
+     */
+    public void destoryItem(){
+        conversationItem = null;
+    }
+
+    public void switchTransfer(){
+        if (recognizerEngine != null && recognizerEngine.isRunning()){
+            stopTransfer();
+        } else {
+            startTransfer();
+        }
+    }
 
     @OnClick(R.id.start_transfer)
     public void viewOnClick(View view){
         switch (view.getId()){
             case R.id.start_transfer:
-                startTransfer();
+                switchTransfer();
+                break;
+        }
+    }
+
+    @OnCheckedChanged(R.id.trans_switch)
+    public void onCheckedChanged(View view,boolean isChange){
+        switch (view.getId()){
+            case R.id.trans_switch:
+                if (isChange) {
+                    conversatinAdapter.setShowTrans(transSwitch.isChecked());
+                }
                 break;
         }
     }

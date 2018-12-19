@@ -1,9 +1,9 @@
-package com.iflytek.zst.dictationibrary.utils;
+package com.iflytek.zst.dictationlibrary.utils;
 
 import com.google.gson.Gson;
-import com.iflytek.zst.dictationibrary.bean.DictationResultbean;
-import com.iflytek.zst.dictationibrary.bean.MyResultBean;
-import com.iflytek.zst.dictationibrary.constants.Constants;
+import com.iflytek.zst.dictationlibrary.bean.DictationResultbean;
+import com.iflytek.zst.dictationlibrary.bean.MyResultBean;
+import com.iflytek.zst.dictationlibrary.constants.DictationConstants;
 
 import java.util.List;
 
@@ -19,14 +19,14 @@ public class DictationResultFormat {
         StringBuilder contentBuffer = new StringBuilder();
         DictationResultbean dictationResultbean = new Gson().fromJson(jsonData,DictationResultbean.class);
         List<DictationResultbean.WsBean> wsBeans = dictationResultbean.getWs();
-        if (dictationResultbean.getRg().size()>0){
+        if (dictationResultbean.getRg() != null && dictationResultbean.getRg().size()>0){
             start = dictationResultbean.getRg().get(0);
             end = dictationResultbean.getRg().get(1);
         }
         for (int i = 0;i<wsBeans.size();i++){
             //get（0），默认取候选词列表中的第一个
             contentBuffer.append(wsBeans.get(i).getCw().get(0).getW());
-            if (dictationResultbean.getPgs().equals(Constants.SENTENCEUPDATE) && i == end-start){
+            if (dictationResultbean.getPgs().equals(DictationConstants.SENTENCEUPDATE) && i == end-start){
                 myResultBean.replace = contentBuffer.toString().length();
             }
         }

@@ -3,7 +3,7 @@ package com.iflytek.zst.taoqi;
 import android.content.Context;
 import android.support.multidex.MultiDexApplication;
 
-import com.iflytek.zst.dictationibrary.online.RecognizerEngine;
+import com.iflytek.zst.dictationlibrary.online.RecognizerEngine;
 import com.iflytek.zst.taoqi.constant.Constants;
 import com.lzy.okgo.OkGo;
 
@@ -31,7 +31,7 @@ public class TaoQiApplication extends MultiDexApplication {
                 .build();
         Realm.setDefaultConfiguration(config);
         OkGo.getInstance().init(this);
-        RecognizerEngine.init(context, Constants.APPID);
+        RecognizerEngine.init(context, Constants.APPID,Constants.APP_ID_HUIYI);
     }
 
     public static Context getContext() {

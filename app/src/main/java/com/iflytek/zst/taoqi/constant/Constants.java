@@ -8,6 +8,8 @@ public class Constants {
 
     //听写引擎识别appid
     public static final String APPID = "5c173ea4";
+    //翻译引擎appid
+    public static final String APP_ID_HUIYI = "5ae146f9";//慧议
 
     //音乐控制指令tag
     public static final String MUSIC_START = "START";
@@ -31,4 +33,7 @@ public class Constants {
 
     //每段会话最长字数限制
     public static final int MAXSENTENCELENGTH = 200;
+
+    //引擎结束消息what
+    public static final int WHAT_DICTATIONEND = 101;
 }

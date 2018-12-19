@@ -19,10 +19,58 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
+
+        flavorDimensions "versionCode"
     }
     dexOptions {
         javaMaxHeapSize "4g"
     }
+
+
+    productFlavors {
+        dev_log {
+            buildConfigField("String", 'API_URL', '"itmadev20.iflytek.com"')
+            buildConfigField("boolean", 'isLog', 'true')
+            buildConfigField("String", 'AUTH_URL', '"itmadev.iflytek.com"')
+            buildConfigField('String', 'BigFileUrl', '"itmadev.iflytek.com"')
+            buildConfigField('String', 'TRANSFER_URL', '"222.85.181.52:8100"')
+            resValue("string", 'app_releaseTime', getAppReleaseTime('dev_log'))
+        }
+
+        internal_test_log {
+            buildConfigField("String", 'API_URL', '"itranstest20.iflytek.com"')
+            buildConfigField("boolean", 'isLog', 'true')
+            buildConfigField("String", 'AUTH_URL', '"itranstest.iflytek.com"')
+            buildConfigField('String', 'BigFileUrl', '"itranstest.iflytek.com"')
+            buildConfigField('String', 'TRANSFER_URL', '"222.85.181.52:8100"')
+            resValue("string", 'app_releaseTime', getAppReleaseTime('internal_test_log'))
+        }
+        internal_log {
+            buildConfigField("String", 'API_URL', '"itmatest20.iflytek.com"')
+            buildConfigField("boolean", 'isLog', 'false')
+            buildConfigField("String", 'AUTH_URL', '"itranstest.iflytek.com"')
+            buildConfigField('String', 'BigFileUrl', '"itranstest.iflytek.com"')
+            buildConfigField('String', 'TRANSFER_URL', '"222.85.181.52:8100"')
+            resValue("string", 'app_releaseTime', getAppReleaseTime('internal_log'))
+        }
+        product_log {
+            buildConfigField("String", 'API_URL', '"xiaoyi-api.xf-yun.com"')
+            buildConfigField("boolean", 'isLog', 'true')
+            buildConfigField("String", 'AUTH_URL', '"itmaManage.xf-yun.com"')
+            buildConfigField('String', 'BigFileUrl', '"itransManage.xf-yun.com"')
+            buildConfigField('String', 'TRANSFER_URL', '"222.85.181.52:8100"')
+            resValue("string", 'app_releaseTime', getAppReleaseTime('product_log'))
+        }
+        product {
+            buildConfigField("String", 'API_URL', '"xiaoyi-api.xf-yun.com"')
+            buildConfigField("boolean", 'isLog', 'false')
+            buildConfigField("String", 'AUTH_URL', '"itmaManage.xf-yun.com"')
+            buildConfigField('String', 'BigFileUrl', '"itransManage.xf-yun.com"')
+            buildConfigField('String', 'TRANSFER_URL', '"222.85.181.52:8100"')
+            resValue("string", 'app_releaseTime', getAppReleaseTime('product'))
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -51,4 +99,8 @@ dependencies {
     compile 'com.lzy.net:okgo:3.0.4'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     implementation project (':dictationlibrary')
+}
+
+def getAppReleaseTime(def product){
+    return product
 }

@@ -1,4 +1,4 @@
-package com.iflytek.zst.dictationibrary.bean;
+package com.iflytek.zst.dictationlibrary.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -8,9 +8,13 @@ import android.os.Parcelable;
  */
 
 public class MyResultBean implements Parcelable{
+    //标识结果类型：apd，rpl
     public String pgs;
+    //识别结果
     public String content;
+    //需要替换的字串长度（当前子句中确认的字串长度）
     public int replace;
+    //是否是最后一次消息返回（标志本次会话结束）
     public boolean isEnd;
 
     public MyResultBean(){

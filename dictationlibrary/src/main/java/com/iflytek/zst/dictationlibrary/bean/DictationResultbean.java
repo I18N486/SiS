@@ -1,4 +1,4 @@
-package com.iflytek.zst.dictationibrary.bean;
+package com.iflytek.zst.dictationlibrary.bean;
 
 import java.util.List;
 

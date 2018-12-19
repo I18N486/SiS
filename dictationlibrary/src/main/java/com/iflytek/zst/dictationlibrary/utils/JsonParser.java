@@ -1,4 +1,4 @@
-package com.iflytek.zst.dictationibrary.utils;
+package com.iflytek.zst.dictationlibrary.utils;
 
 import android.util.Log;
 

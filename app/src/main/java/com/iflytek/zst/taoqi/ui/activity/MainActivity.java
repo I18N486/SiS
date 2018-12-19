@@ -17,22 +17,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.iflytek.zst.dictationibrary.impl.IMscUtil;
-import com.iflytek.zst.dictationibrary.online.RecognizerEngine;
 import com.iflytek.zst.taoqi.R;
 import com.iflytek.zst.taoqi.bean.MemoBean;
 import com.iflytek.zst.taoqi.componant.FloatWindowService;
 import com.iflytek.zst.taoqi.componant.MusicService;
 import com.iflytek.zst.taoqi.constant.Constants;
 import com.iflytek.zst.taoqi.net.OkGoUtils;
-import com.iflytek.zst.taoqi.storage.sharedpreferences.MySharedpreferences;
-import com.iflytek.zst.taoqi.test.testeventbus.TestEventbusActivity;
 import com.iflytek.zst.taoqi.ui.activity.base.BaseActivity;
 import com.iflytek.zst.taoqi.utils.Utils;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
