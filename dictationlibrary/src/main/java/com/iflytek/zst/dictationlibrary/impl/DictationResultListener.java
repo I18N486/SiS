@@ -13,4 +13,5 @@ public interface DictationResultListener {
     void onError(int errorCode);
     void onSentenceResult(MyResultBean orisBean);
     void onTransResult(MyResultBean transBean);
+    void onAudioBytes(byte[] audioBytes);
 }

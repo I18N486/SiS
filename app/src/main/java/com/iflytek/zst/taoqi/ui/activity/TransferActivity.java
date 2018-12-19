@@ -8,6 +8,7 @@ import android.os.Message;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -23,6 +24,7 @@ import com.iflytek.zst.taoqi.bean.VoiceTextBean;
 import com.iflytek.zst.taoqi.componant.adapter.VoiceTextAdapter;
 import com.iflytek.zst.taoqi.constant.Constants;
 import com.iflytek.zst.taoqi.ui.activity.base.BaseActivity;
+import com.iflytek.zst.taoqi.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +33,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
+import butterknife.Optional;
 
 public class TransferActivity extends BaseActivity {
 
@@ -108,19 +111,18 @@ public class TransferActivity extends BaseActivity {
             if (transBean.pgs.equals(DictationConstants.SENTENCEUPDATE)){
                 transContent = transBean.content;
                 conversationItem.setTrans(transTemp.toString()+transContent);
-                //conversationItem.updateLength = orisContent.length()-orisBean.replace;
                 conversatinAdapter.notifyDataSetChanged();
             } else if (transBean.pgs.equals(DictationConstants.SENTENCEEND)){
                 transTemp.append(transContent);
                 transContent = transBean.content;
                 conversationItem.setTrans(transTemp.toString()+transContent);
-//                if (transBean.isEnd){
-//                    conversationItem.updateLength = 0;
-//                } else {
-//                    conversationItem.updateLength = orisContent.length();
-//                }
                 conversatinAdapter.notifyDataSetChanged();
             }
+        }
+
+        @Override
+        public void onAudioBytes(byte[] audioBytes) {
+
         }
     };
 
@@ -146,6 +148,10 @@ public class TransferActivity extends BaseActivity {
     }
 
     public void startTransfer(){
+        if (conversationItem != null && !StringUtils.isEmptyOrSpaces(conversationItem.getOris())){
+            //item为空，新建item；如果item已存在但是item无识别内容，则不新建，减少创建空白item
+            createNewItem();
+        }
         Glide.with(this).load(R.drawable.meetting_speeker_voice2).into(startTransfer);
         if (recognizerEngine == null) {
             recognizerEngine = RecognizerEngine.getInstance();
@@ -162,7 +168,7 @@ public class TransferActivity extends BaseActivity {
                 public void handleMessage(Message msg) {
                     super.handleMessage(msg);
                     if (msg.what == Constants.WHAT_DICTATIONEND){
-                        destoryItem();
+                        //destoryItem();
                         startTransfer.setClickable(true);
                     }
                 }
@@ -198,7 +204,8 @@ public class TransferActivity extends BaseActivity {
         if (recognizerEngine != null && recognizerEngine.isRunning()){
             stopTransfer();
         } else {
-            startTransfer();
+            //startTransfer();
+            testRecognizerEngine();
         }
     }
 
@@ -211,14 +218,21 @@ public class TransferActivity extends BaseActivity {
         }
     }
 
+    @Optional
     @OnCheckedChanged(R.id.trans_switch)
-    public void onCheckedChanged(View view,boolean isChange){
+    public void onCheckedChanged(CompoundButton view, boolean isChecked){
         switch (view.getId()){
             case R.id.trans_switch:
-                if (isChange) {
-                    conversatinAdapter.setShowTrans(transSwitch.isChecked());
-                }
+                conversatinAdapter.setShowTrans(isChecked);
                 break;
         }
+    }
+
+
+    private void testRecognizerEngine(){
+        if (recognizerEngine == null){
+            recognizerEngine = RecognizerEngine.getInstance();
+        }
+        recognizerEngine.startRecognNoPgs(null);
     }
 }

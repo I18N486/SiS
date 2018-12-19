@@ -140,7 +140,10 @@ public class RecognizerEngine {
 
         @Override
         public void onVolumeChanged(int i, byte[] bytes) {
-            //MyLogUtils.d(TAG,"onVolumeChanged "+ i);
+            MyLogUtils.d(TAG,"onVolumeChanged "+ i);
+            if (resultListener != null){
+                resultListener.onAudioBytes(bytes);
+            }
         }
 
         @Override
@@ -184,14 +187,45 @@ public class RecognizerEngine {
         }
     };
 
+    private RecognizerListener tsRecognizerListener = new RecognizerListener() {
+        @Override
+        public void onVolumeChanged(int i, byte[] bytes) {
+
+        }
+
+        @Override
+        public void onBeginOfSpeech() {
+
+        }
+
+        @Override
+        public void onEndOfSpeech() {
+
+        }
+
+        @Override
+        public void onResult(RecognizerResult recognizerResult, boolean b) {
+            MyLogUtils.d(TAG,"原始识别结果："+recognizerResult.getResultString());
+        }
+
+        @Override
+        public void onError(SpeechError speechError) {
+
+        }
+
+        @Override
+        public void onEvent(int i, int i1, int i2, Bundle bundle) {
+
+        }
+    };
 
     /**
-     * 通用识别，带pgs效果，使用sdk默认录音
+     * 通用识别，带pgs效果，使用sdk默认录音（当前引擎不支持长听写，最长1分钟后自动停止识别转写）
      * @param filePath 音频文件保存全路径（设置为null则不保存）
      */
     public void startRecognWithPgs(DictationResultListener dictationResultListener,String filePath){
         if (mAsr == null){
-            MyLogUtils.e(TAG,"startRecogn error,the masr is null");
+            MyLogUtils.e(TAG,"startRecognWithPgs error,the masr is null");
             return;
         }
         resultListener = dictationResultListener;
@@ -212,6 +246,34 @@ public class RecognizerEngine {
         }
     }
 
+
+    public void startRecognNoPgs(String filePath){
+        if (mAsr == null){
+            MyLogUtils.e(TAG,"startRecognNoPgs error,the masr is null");
+            return;
+        }
+        //开始识别之前先设置引擎参数
+        setParam(filePath);
+        //启用翻译(！！！注意启用同步翻译时不可开启pgs功能)
+        mAsr.setParameter(SpeechConstant.ASR_SCH,"1");
+        //翻译通道
+        mAsr.setParameter(SpeechConstant.ADD_CAP,"translate");
+        //设置原始语种
+        mAsr.setParameter( SpeechConstant.ORI_LANG, "cn" );
+        //设置目标语种
+        mAsr.setParameter( SpeechConstant.TRANS_LANG, "en" );
+        if (!mAsr.isListening()) {
+            isRunning = true;
+            int retCode = mAsr.startListening(tsRecognizerListener);
+            if (retCode != ErrorCode.SUCCESS) {
+                isRunning = false;
+                MyLogUtils.e(TAG, "听写识别失败，错误码：" + retCode);
+            }
+        } else {
+            //引擎已经在识别状态
+            MyLogUtils.d(TAG,"当前引擎已处于识别状态，无需重复开启");
+        }
+    }
 
     /**
      * 引擎是否在运行
@@ -267,6 +329,10 @@ public class RecognizerEngine {
     }
 
 
+    /**
+     * 调用后台翻译接口进行翻译
+     * @param myResultBean
+     */
     public void transTextByWebApi(final MyResultBean myResultBean) {
         MyLogUtils.d(TAG,"call transtext: oris= "+myResultBean.content);
         if (myResultBean.content == null || myResultBean.content.isEmpty()) {
