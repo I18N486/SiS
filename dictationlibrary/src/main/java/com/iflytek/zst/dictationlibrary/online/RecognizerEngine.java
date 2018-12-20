@@ -1,11 +1,10 @@
 package com.iflytek.zst.dictationlibrary.online;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 
-import com.google.gson.Gson;
 import com.iflytek.cloud.ErrorCode;
 import com.iflytek.cloud.InitListener;
 import com.iflytek.cloud.RecognizerListener;
@@ -14,18 +13,14 @@ import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechRecognizer;
 import com.iflytek.cloud.SpeechUtility;
-import com.iflytek.fsp.shield.android.sdk.http.ApiCallback;
-import com.iflytek.fsp.shield.android.sdk.http.ApiProgress;
-import com.iflytek.fsp.shield.android.sdk.http.ApiResponse;
-import com.iflytek.zst.dictationlibrary.bean.MyResultBean;
-import com.iflytek.zst.dictationlibrary.bean.TransResponseBean;
-import com.iflytek.zst.dictationlibrary.bean.TransTextBean;
+import com.iflytek.zst.dictationlibrary.bean.FormatNormalBean;
+import com.iflytek.zst.dictationlibrary.bean.FormatResultBean;
+import com.iflytek.zst.dictationlibrary.bean.NormalResultBean;
 import com.iflytek.zst.dictationlibrary.impl.DictationResultListener;
+import com.iflytek.zst.dictationlibrary.online.transtask.TaskQueue;
 import com.iflytek.zst.dictationlibrary.utils.DictationResultFormat;
-import com.iflytek.zst.dictationlibrary.utils.JsonParser;
 import com.iflytek.zst.dictationlibrary.utils.MyLogUtils;
 
-import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -39,12 +34,16 @@ public class RecognizerEngine {
 
     private static SpeechRecognizer mAsr;
 
+    private String sourceLanguage = "cn";
+    private String targetLanguage = "en";
     private DictationResultListener resultListener = null;
     private boolean isRunning = false;
     private ExecutorService executorService;
+    private TaskQueue<TransTask> mTransTaskTaskQueue;
 
     private RecognizerEngine(){
         executorService = Executors.newFixedThreadPool(1);
+        mTransTaskTaskQueue = new TaskQueue<>(1);
     }
     private static class SingletonHolder{
         public static final RecognizerEngine instance = new RecognizerEngine();
@@ -75,12 +74,31 @@ public class RecognizerEngine {
     /**
      * 初始化
      * @param context
-     * @param appId
+     * @param appId 识别appid
+     * @param transAppID  翻译appid
      */
     public static void init(Context context,String appId,String transAppID){
         SpeechUtility.createUtility(context, "appid=" + appId);
         mAsr = SpeechRecognizer.createRecognizer(context,mInitListener);
         TRANSAPPID = transAppID;
+    }
+
+
+    /**
+     * 设置源语种（识别），该方法只能在引擎开始识别之前设置生效
+     * @param source
+     */
+    public void setSourceLanguage(String source){
+        sourceLanguage = source;
+    }
+
+
+    /**
+     * 设置目标语种（翻译）,使用webapi翻译时该方法即时生效
+     * @param target
+     */
+    public void setTargetLanguage(String target){
+        targetLanguage = target;
     }
 
 
@@ -114,7 +132,7 @@ public class RecognizerEngine {
         // 设置标点符号,设置为"0"返回结果无标点,设置为"1"返回结果有标点
         mAsr.setParameter(SpeechConstant.ASR_PTT, "1");
 
-        // 设置语言
+        // 设置语言（取值 “zh_cn”、“es_en”）,默认值zh_cn
         mAsr.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
         // 设置语言区域
         mAsr.setParameter(SpeechConstant.ACCENT, "mandarin");
@@ -134,100 +152,35 @@ public class RecognizerEngine {
 
 
     /**
-     * 听写监听器
+     * 识别内容送去翻译
+     * @param formatResultBean
      */
-    private RecognizerListener mRecognizerListener = new RecognizerListener(){
-
-        @Override
-        public void onVolumeChanged(int i, byte[] bytes) {
-            MyLogUtils.d(TAG,"onVolumeChanged "+ i);
-            if (resultListener != null){
-                resultListener.onAudioBytes(bytes);
-            }
+    private void addTextToTransTask(FormatResultBean formatResultBean){
+        if (TextUtils.isEmpty(formatResultBean.content)){
+            //空字串拦截
+            return;
         }
-
-        @Override
-        public void onBeginOfSpeech() {
-            MyLogUtils.d(TAG,"onBeginOfSpeech");
-            if (resultListener != null){
-                resultListener.onStartSpeech();
-            }
+        TransTask transTask = mTransTaskTaskQueue.obtainTask();
+        if (transTask == null){
+            transTask = new TransTask();
         }
-
-        @Override
-        public void onEndOfSpeech() {
-            MyLogUtils.d(TAG,"onEndOfSpeech");
-            if (resultListener != null){
-                resultListener.onEndSpeech();
-            }
-        }
-
-        @Override
-        public void onResult(RecognizerResult recognizerResult, boolean b) {
-            MyLogUtils.d(TAG,"原始识别结果："+recognizerResult.getResultString());
-            MyResultBean myResultBean = DictationResultFormat.formatIatResult(recognizerResult.getResultString());
-            MyLogUtils.d(TAG,"数据格式化后："+myResultBean.toString());
-            if (resultListener != null) {
-                resultListener.onSentenceResult(myResultBean);
-                transTextByWebApi(myResultBean);
-            }
-        }
-
-        @Override
-        public void onError(SpeechError speechError) {
-            MyLogUtils.e(TAG,"recognize error,msg: "+speechError.toString());
-            if (resultListener != null) {
-                resultListener.onError(speechError.getErrorCode());
-            }
-        }
-
-        @Override
-        public void onEvent(int i, int i1, int i2, Bundle bundle) {
-
-        }
-    };
-
-    private RecognizerListener tsRecognizerListener = new RecognizerListener() {
-        @Override
-        public void onVolumeChanged(int i, byte[] bytes) {
-
-        }
-
-        @Override
-        public void onBeginOfSpeech() {
-
-        }
-
-        @Override
-        public void onEndOfSpeech() {
-
-        }
-
-        @Override
-        public void onResult(RecognizerResult recognizerResult, boolean b) {
-            MyLogUtils.d(TAG,"原始识别结果："+recognizerResult.getResultString());
-        }
-
-        @Override
-        public void onError(SpeechError speechError) {
-
-        }
-
-        @Override
-        public void onEvent(int i, int i1, int i2, Bundle bundle) {
-
-        }
-    };
+        transTask.setData(TRANSAPPID,sourceLanguage,targetLanguage, formatResultBean,resultListener);
+        mTransTaskTaskQueue.addTask(transTask);
+    }
 
     /**
      * 通用识别，带pgs效果，使用sdk默认录音（当前引擎不支持长听写，最长1分钟后自动停止识别转写）
      * @param filePath 音频文件保存全路径（设置为null则不保存）
+     * @param dictationResultListener 信息回调
      */
     public void startRecognWithPgs(DictationResultListener dictationResultListener,String filePath){
         if (mAsr == null){
             MyLogUtils.e(TAG,"startRecognWithPgs error,the masr is null");
             return;
         }
+        //开始运行翻译线程
+        mTransTaskTaskQueue.start();
+
         resultListener = dictationResultListener;
         //开始识别之前先设置引擎参数
         setParam(filePath);
@@ -235,7 +188,56 @@ public class RecognizerEngine {
         mAsr.setParameter(SpeechConstant.ASR_DWA, "wpgs");
         if (!mAsr.isListening()) {
             isRunning = true;
-            int retCode = mAsr.startListening(mRecognizerListener);
+            int retCode = mAsr.startListening(new RecognizerListener(){
+
+                @Override
+                public void onVolumeChanged(int i, byte[] bytes) {
+                    MyLogUtils.d(TAG,"onVolumeChanged "+ i);
+                    if (resultListener != null){
+                        resultListener.onAudioBytes(bytes);
+                    }
+                }
+
+                @Override
+                public void onBeginOfSpeech() {
+                    MyLogUtils.d(TAG,"onBeginOfSpeech");
+                    if (resultListener != null){
+                        resultListener.onStartSpeech();
+                    }
+                }
+
+                @Override
+                public void onEndOfSpeech() {
+                    MyLogUtils.d(TAG,"onEndOfSpeech");
+                    if (resultListener != null){
+                        resultListener.onEndSpeech();
+                    }
+                }
+
+                @Override
+                public void onResult(RecognizerResult recognizerResult, boolean b) {
+                    MyLogUtils.d(TAG,"原始识别结果："+recognizerResult.getResultString());
+                    FormatResultBean formatResultBean = DictationResultFormat.formatPgsIatResult(recognizerResult.getResultString());
+                    MyLogUtils.d(TAG,"数据格式化后："+ formatResultBean.toString());
+                    if (resultListener != null) {
+                        resultListener.onSentenceResult(formatResultBean);
+                        addTextToTransTask(formatResultBean);
+                    }
+                }
+
+                @Override
+                public void onError(SpeechError speechError) {
+                    MyLogUtils.e(TAG,"recognize error,msg: "+speechError.toString());
+                    if (resultListener != null) {
+                        resultListener.onError(speechError.getErrorCode());
+                    }
+                }
+
+                @Override
+                public void onEvent(int i, int i1, int i2, Bundle bundle) {
+
+                }
+            });
             if (retCode != ErrorCode.SUCCESS) {
                 isRunning = false;
                 MyLogUtils.e(TAG, "听写识别失败，错误码：" + retCode);
@@ -247,11 +249,33 @@ public class RecognizerEngine {
     }
 
 
-    public void startRecognNoPgs(String filePath){
+    public void startRecognWithPgsByCustomAudio(DictationResultListener dictationResultListener,String filePath){
+        if (mAsr == null){
+            MyLogUtils.e(TAG,"startRecognWithPgs error,the masr is null");
+            return;
+        }
+        resultListener = dictationResultListener;
+        //开始识别之前先设置引擎参数
+        setParam(filePath);
+        //设置音频源（writeaudio传入）
+        mAsr.setParameter(SpeechConstant.AUDIO_SOURCE,"-1");
+        //开启pgs功能，实时转写
+        mAsr.setParameter(SpeechConstant.ASR_DWA, "wpgs");
+
+    }
+
+
+    /**
+     * 通用识别，不带pgs效果，使用sdk默认录音，不支持长听写
+     * @param dictationResultListener 信息回调
+     * @param filePath 音频文件保存全路径（设置为null则不保存）
+     */
+    public void startRecognNoPgs(DictationResultListener dictationResultListener,String filePath){
         if (mAsr == null){
             MyLogUtils.e(TAG,"startRecognNoPgs error,the masr is null");
             return;
         }
+        resultListener = dictationResultListener;
         //开始识别之前先设置引擎参数
         setParam(filePath);
         //启用翻译(！！！注意启用同步翻译时不可开启pgs功能)
@@ -259,12 +283,57 @@ public class RecognizerEngine {
         //翻译通道
         mAsr.setParameter(SpeechConstant.ADD_CAP,"translate");
         //设置原始语种
-        mAsr.setParameter( SpeechConstant.ORI_LANG, "cn" );
+        mAsr.setParameter( SpeechConstant.ORI_LANG, sourceLanguage );
         //设置目标语种
-        mAsr.setParameter( SpeechConstant.TRANS_LANG, "en" );
+        mAsr.setParameter( SpeechConstant.TRANS_LANG, targetLanguage );
         if (!mAsr.isListening()) {
             isRunning = true;
-            int retCode = mAsr.startListening(tsRecognizerListener);
+            int retCode = mAsr.startListening(new RecognizerListener() {
+                @Override
+                public void onVolumeChanged(int i, byte[] bytes) {
+                    MyLogUtils.d(TAG,"onVolumeChanged "+ i);
+                    if (resultListener != null){
+                        resultListener.onAudioBytes(bytes);
+                    }
+                }
+
+                @Override
+                public void onBeginOfSpeech() {
+                    MyLogUtils.d(TAG,"onBeginOfSpeech");
+                    if (resultListener != null){
+                        resultListener.onStartSpeech();
+                    }
+                }
+
+                @Override
+                public void onEndOfSpeech() {
+                    MyLogUtils.d(TAG,"onEndOfSpeech");
+                    if (resultListener != null){
+                        resultListener.onEndSpeech();
+                    }
+                }
+
+                @Override
+                public void onResult(RecognizerResult recognizerResult, boolean b) {
+                    MyLogUtils.d(TAG,"原始识别结果："+recognizerResult.getResultString());
+                    FormatNormalBean formatNormalBean = DictationResultFormat
+                            .formatNormalIatResult(recognizerResult.getResultString());
+                    resultListener.onNoPgsResult(formatNormalBean);
+                }
+
+                @Override
+                public void onError(SpeechError speechError) {
+                    MyLogUtils.e(TAG,"recognize error,msg: "+speechError.toString());
+                    if (resultListener != null) {
+                        resultListener.onError(speechError.getErrorCode());
+                    }
+                }
+
+                @Override
+                public void onEvent(int i, int i1, int i2, Bundle bundle) {
+
+                }
+            });
             if (retCode != ErrorCode.SUCCESS) {
                 isRunning = false;
                 MyLogUtils.e(TAG, "听写识别失败，错误码：" + retCode);
@@ -274,6 +343,7 @@ public class RecognizerEngine {
             MyLogUtils.d(TAG,"当前引擎已处于识别状态，无需重复开启");
         }
     }
+
 
     /**
      * 引擎是否在运行
@@ -328,67 +398,4 @@ public class RecognizerEngine {
         mAsr.cancel();
     }
 
-
-    /**
-     * 调用后台翻译接口进行翻译
-     * @param myResultBean
-     */
-    public void transTextByWebApi(final MyResultBean myResultBean) {
-        MyLogUtils.d(TAG,"call transtext: oris= "+myResultBean.content);
-        if (myResultBean.content == null || myResultBean.content.isEmpty()) {
-            //空字串翻译拦截
-            return;
-        }
-
-        TransTextBean transTextBean = new TransTextBean();
-        transTextBean.appid = TRANSAPPID;
-        transTextBean.sn = Build.SERIAL;
-        transTextBean.from = "cn";
-        transTextBean.to = "en";
-        transTextBean.srcStr = myResultBean.content;
-        transTextBean.latitude = "123.23";
-        transTextBean.longitude = "132.519";
-        transTextBean.applicationType = 1;
-        ShieldAsyncApp_meeting.getInstance().txtTrans(transTextBean, new ApiCallback<String>() {
-            @Override
-            public void onDownloadProgress(ApiProgress apiProgress) {
-
-            }
-
-            @Override
-            public void onHttpDone() {
-
-            }
-
-            @Override
-            public void onSuccess(ApiResponse apiResponse, String o) {
-                MyLogUtils.d(TAG,"transTextByWebApi response= "+o);
-                TransResponseBean responseBean = new Gson().fromJson(o,TransResponseBean.class);
-                if (o != null && "1000".equals(responseBean.getCode())){
-                    if (responseBean.getData() != null){
-                        MyLogUtils.d(TAG,"transTextByWebApi success,the target= "+responseBean.getData().getTargetTxt());
-                        MyResultBean transBean = new MyResultBean();
-                        transBean.content = responseBean.getData().getTargetTxt();
-                        transBean.pgs = myResultBean.pgs;
-                        transBean.replace = 0;
-                        transBean.isEnd = myResultBean.isEnd;
-                        if (resultListener != null) {
-                            resultListener.onTransResult(transBean);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onFailed(ApiResponse apiResponse) {
-                MyLogUtils.d(TAG,"transTextByWebApi failed" + apiResponse.toString());
-            }
-
-            @Override
-            public void onException(Exception e) {
-                e.printStackTrace();
-                MyLogUtils.e(TAG, "transTextByWebApi has happened exception");
-            }
-        }, null);
-    }
 }

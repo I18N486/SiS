@@ -6,7 +6,7 @@ import java.util.List;
  * Created by DELL-5490 on 2018/12/18.
  */
 
-public class DictationResultbean {
+public class PgsResultbean {
 
     /**
      * sn : 3

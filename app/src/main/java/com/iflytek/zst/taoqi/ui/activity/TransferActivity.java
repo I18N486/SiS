@@ -15,7 +15,9 @@ import android.widget.Spinner;
 import android.widget.Switch;
 
 import com.bumptech.glide.Glide;
-import com.iflytek.zst.dictationlibrary.bean.MyResultBean;
+import com.iflytek.zst.dictationlibrary.bean.FormatNormalBean;
+import com.iflytek.zst.dictationlibrary.bean.FormatResultBean;
+import com.iflytek.zst.dictationlibrary.bean.NormalResultBean;
 import com.iflytek.zst.dictationlibrary.constants.DictationConstants;
 import com.iflytek.zst.dictationlibrary.impl.DictationResultListener;
 import com.iflytek.zst.dictationlibrary.online.RecognizerEngine;
@@ -75,7 +77,7 @@ public class TransferActivity extends BaseActivity {
         }
 
         @Override
-        public void onSentenceResult(MyResultBean orisBean) {
+        public void onSentenceResult(FormatResultBean orisBean) {
             if (conversationItem == null){
                 //首次消息返回，新建item
                 createNewItem();
@@ -103,7 +105,7 @@ public class TransferActivity extends BaseActivity {
         }
 
         @Override
-        public void onTransResult(MyResultBean transBean) {
+        public void onTransResult(FormatResultBean transBean) {
             if (conversationItem == null){
                 //首次消息返回，新建item
                 createNewItem();
@@ -123,6 +125,19 @@ public class TransferActivity extends BaseActivity {
         @Override
         public void onAudioBytes(byte[] audioBytes) {
 
+        }
+
+        @Override
+        public void onNoPgsResult(FormatNormalBean normalBean) {
+            if (conversationItem == null){
+                //首次消息返回，新建item
+                createNewItem();
+            }
+            orisTemp.append(normalBean.orisContent);
+            transTemp.append(normalBean.transContent);
+            conversationItem.setOris(orisTemp.toString());
+            conversationItem.setTrans(transTemp.toString());
+            conversatinAdapter.notifyDataSetChanged();
         }
     };
 
@@ -148,7 +163,7 @@ public class TransferActivity extends BaseActivity {
     }
 
     public void startTransfer(){
-        if (conversationItem != null && !StringUtils.isEmptyOrSpaces(conversationItem.getOris())){
+        if (conversationItem == null || (conversationItem!= null && !StringUtils.isEmptyOrSpaces(conversationItem.getOris()))){
             //item为空，新建item；如果item已存在但是item无识别内容，则不新建，减少创建空白item
             createNewItem();
         }
@@ -204,8 +219,8 @@ public class TransferActivity extends BaseActivity {
         if (recognizerEngine != null && recognizerEngine.isRunning()){
             stopTransfer();
         } else {
-            //startTransfer();
-            testRecognizerEngine();
+            startTransfer();
+            //testRecognizerEngine();
         }
     }
 
@@ -224,15 +239,21 @@ public class TransferActivity extends BaseActivity {
         switch (view.getId()){
             case R.id.trans_switch:
                 conversatinAdapter.setShowTrans(isChecked);
+                conversatinAdapter.notifyDataSetChanged();
                 break;
         }
     }
 
 
     private void testRecognizerEngine(){
+        if (conversationItem == null || (conversationItem!= null && !StringUtils.isEmptyOrSpaces(conversationItem.getOris()))){
+            //item为空，新建item；如果item已存在但是item无识别内容，则不新建，减少创建空白item
+            createNewItem();
+        }
+        Glide.with(this).load(R.drawable.meetting_speeker_voice2).into(startTransfer);
         if (recognizerEngine == null){
             recognizerEngine = RecognizerEngine.getInstance();
         }
-        recognizerEngine.startRecognNoPgs(null);
+        recognizerEngine.startRecognNoPgs(dictationResultListener,null);
     }
 }
