@@ -13,6 +13,12 @@ import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechRecognizer;
 import com.iflytek.cloud.SpeechUtility;
+import com.iflytek.zst.dictationlibrary.audio.AudioFactory;
+import com.iflytek.zst.dictationlibrary.audio.AudioSimpleQueueManager;
+import com.iflytek.zst.dictationlibrary.audio.AudioStreamImpl;
+import com.iflytek.zst.dictationlibrary.audio.IAudioManager;
+import com.iflytek.zst.dictationlibrary.audio.IAudioRecord;
+import com.iflytek.zst.dictationlibrary.audio.RecordCallback;
 import com.iflytek.zst.dictationlibrary.bean.FormatNormalBean;
 import com.iflytek.zst.dictationlibrary.bean.FormatResultBean;
 import com.iflytek.zst.dictationlibrary.bean.NormalResultBean;
@@ -21,8 +27,10 @@ import com.iflytek.zst.dictationlibrary.online.transtask.TaskQueue;
 import com.iflytek.zst.dictationlibrary.utils.DictationResultFormat;
 import com.iflytek.zst.dictationlibrary.utils.MyLogUtils;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * Created by DELL-5490 on 2018/12/17.
@@ -38,8 +46,12 @@ public class RecognizerEngine {
     private String targetLanguage = "en";
     private DictationResultListener resultListener = null;
     private boolean isRunning = false;
+    private boolean isLongDictaion = false;
+    private Thread writeAudioThread;
     private ExecutorService executorService;
     private TaskQueue<TransTask> mTransTaskTaskQueue;
+    private IAudioRecord iAudioRecord;
+    private IAudioManager audioManager;
 
     private RecognizerEngine(){
         executorService = Executors.newFixedThreadPool(1);
@@ -47,6 +59,23 @@ public class RecognizerEngine {
     }
     private static class SingletonHolder{
         public static final RecognizerEngine instance = new RecognizerEngine();
+    }
+
+    public void create(Context context,boolean useDoNoise){
+        create(AudioFactory.getAudioRecord(context,useDoNoise));
+    }
+
+    public void create(Context context,int audioRecordType){
+        create(AudioFactory.getAudioRecord(context,audioRecordType));
+    }
+
+    public void create(IAudioRecord iAudioRecord){
+        create(iAudioRecord,new AudioSimpleQueueManager(new AudioStreamImpl(new LinkedBlockingDeque<byte[]>())));
+    }
+
+    public void create(IAudioRecord iAudioRecord,IAudioManager audioManager){
+        this.iAudioRecord = iAudioRecord;
+        this.audioManager = audioManager;
     }
 
     /**
@@ -179,7 +208,7 @@ public class RecognizerEngine {
             return;
         }
         //开始运行翻译线程
-        mTransTaskTaskQueue.start();
+        if (mTransTaskTaskQueue != null) mTransTaskTaskQueue.start();
 
         resultListener = dictationResultListener;
         //开始识别之前先设置引擎参数
@@ -249,11 +278,91 @@ public class RecognizerEngine {
     }
 
 
+    /**
+     * 开启自定义录音长听写
+     * @param resultListener
+     * @param filePath
+     */
+    public void startRecognize(final DictationResultListener resultListener, final String filePath){
+        isLongDictaion = true;
+        if (iAudioRecord != null){
+            iAudioRecord.startRecord(new RecordCallback() {
+                @Override
+                public void onRecord(byte[] audio) {
+                    addToAudioQueue(audio);
+                }
+
+                @Override
+                public void onError(int code) {
+
+                }
+            });
+        }
+        audioManager.startAddQueue(1280);
+        writeAudioThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    startWriteAudio(resultListener,filePath);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        writeAudioThread.start();
+    }
+
+    /**
+     * 向音频队列中添加音频数据
+     *
+     * @param bytes
+     */
+    public void addToAudioQueue(byte[] bytes) {
+        if (audioManager != null) {
+            try {
+                audioManager.addToAudioQueue(bytes);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 开始写入音频
+     */
+    public synchronized void startWriteAudio(DictationResultListener resultListener,String filePath) throws InterruptedException {
+        startRecognWithPgsByCustomAudio(resultListener,filePath);
+        while (isLongDictaion) {
+            while (!isRunning() && isLongDictaion) {
+                startRecognWithPgsByCustomAudio(resultListener,filePath);
+                MyLogUtils.d(TAG, "startWriteAudio() called 开启识别");
+                //session begin 等待时间
+                Thread.sleep(40);
+            }
+
+            byte[] bytes = audioManager.getAudioBytes();
+            writeAudio(bytes, 0, bytes.length);
+            if (resultListener != null) {
+                resultListener.onAudioBytes(bytes);
+            }
+        }
+    }
+
+    /**
+     * 通用识别，使用自定义录音，通过队列和不停的重启组成长听写
+     * @param dictationResultListener
+     * @param filePath
+     */
     public void startRecognWithPgsByCustomAudio(DictationResultListener dictationResultListener,String filePath){
         if (mAsr == null){
             MyLogUtils.e(TAG,"startRecognWithPgs error,the masr is null");
             return;
         }
+        //开始运行翻译线程
+        if (mTransTaskTaskQueue != null) mTransTaskTaskQueue.start();
+
         resultListener = dictationResultListener;
         //开始识别之前先设置引擎参数
         setParam(filePath);
@@ -261,9 +370,102 @@ public class RecognizerEngine {
         mAsr.setParameter(SpeechConstant.AUDIO_SOURCE,"-1");
         //开启pgs功能，实时转写
         mAsr.setParameter(SpeechConstant.ASR_DWA, "wpgs");
+        //重置前端点（10s）
+        mAsr.setParameter(SpeechConstant.VAD_BOS, "10000");
+        //重置后端点（1.2s）
+        mAsr.setParameter(SpeechConstant.VAD_EOS, "1200");
+        if (!mAsr.isListening()) {
+            isRunning = true;
+            int retCode = mAsr.startListening(new RecognizerListener(){
 
+                @Override
+                public void onVolumeChanged(int i, byte[] bytes) {
+                    MyLogUtils.d(TAG,"onVolumeChanged "+ i);
+                    if (resultListener != null){
+                        resultListener.onAudioBytes(bytes);
+                    }
+                }
+
+                @Override
+                public void onBeginOfSpeech() {
+                    MyLogUtils.d(TAG,"onBeginOfSpeech");
+                    if (resultListener != null){
+                        resultListener.onStartSpeech();
+                    }
+                }
+
+                @Override
+                public void onEndOfSpeech() {
+                    MyLogUtils.d(TAG,"onEndOfSpeech");
+                    if (resultListener != null){
+                        resultListener.onEndSpeech();
+                    }
+                }
+
+                @Override
+                public void onResult(RecognizerResult recognizerResult, boolean b) {
+                    MyLogUtils.d(TAG,"原始识别结果："+recognizerResult.getResultString());
+                    FormatResultBean formatResultBean = DictationResultFormat.formatPgsIatResult(recognizerResult.getResultString());
+                    MyLogUtils.d(TAG,"数据格式化后："+ formatResultBean.toString());
+                    if (resultListener != null) {
+                        resultListener.onSentenceResult(formatResultBean);
+                        addTextToTransTask(formatResultBean);
+                    }
+                }
+
+                @Override
+                public void onError(SpeechError speechError) {
+                    MyLogUtils.e(TAG,"recognize error,msg: "+speechError.toString());
+                    if (resultListener != null) {
+                        resultListener.onError(speechError.getErrorCode());
+                    }
+                }
+
+                @Override
+                public void onEvent(int i, int i1, int i2, Bundle bundle) {
+
+                }
+            });
+            if (retCode != ErrorCode.SUCCESS) {
+                isRunning = false;
+                MyLogUtils.e(TAG, "听写识别失败，错误码：" + retCode);
+            }
+        } else {
+            //引擎已经在识别状态
+            MyLogUtils.d(TAG,"当前引擎已处于识别状态，无需重复开启");
+        }
     }
 
+
+    /**
+     * 停止自定义录音长听写
+     * @param handler
+     * @param what
+     */
+    public void stopRecognizer(Handler handler,int what){
+        this.isLongDictaion = false;
+        if (iAudioRecord != null){
+            iAudioRecord.stopRecord();
+        }
+        if (writeAudioThread != null && !writeAudioThread.isInterrupted()){
+            writeAudioThread.interrupt();
+        }
+        audioManager.stopAddQueue();
+        stopRecogn(handler,what);
+    }
+
+
+    /**
+     * 向引擎写入音频数据（调用该方法之前必须先调用startlistening）
+     * @param byteBuffer  要写入的录音数据缓存
+     * @param offset  实际音频在传入缓存的起始点
+     * @param length  音频数据长度
+     */
+    public void writeAudio(byte[] byteBuffer,int offset,int length){
+        if (mAsr != null){
+            mAsr.writeAudio(byteBuffer,offset,length);
+        }
+    }
 
     /**
      * 通用识别，不带pgs效果，使用sdk默认录音，不支持长听写

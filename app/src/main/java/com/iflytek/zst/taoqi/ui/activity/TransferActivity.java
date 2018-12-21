@@ -22,6 +22,7 @@ import com.iflytek.zst.dictationlibrary.constants.DictationConstants;
 import com.iflytek.zst.dictationlibrary.impl.DictationResultListener;
 import com.iflytek.zst.dictationlibrary.online.RecognizerEngine;
 import com.iflytek.zst.taoqi.R;
+import com.iflytek.zst.taoqi.TaoQiApplication;
 import com.iflytek.zst.taoqi.bean.VoiceTextBean;
 import com.iflytek.zst.taoqi.componant.adapter.VoiceTextAdapter;
 import com.iflytek.zst.taoqi.constant.Constants;
@@ -171,19 +172,30 @@ public class TransferActivity extends BaseActivity {
         if (recognizerEngine == null) {
             recognizerEngine = RecognizerEngine.getInstance();
         }
-        recognizerEngine.startRecognWithPgs(dictationResultListener,null);
+        //recognizerEngine.startRecognWithPgs(dictationResultListener,null);
+        recognizerEngine.create(TaoQiApplication.getContext(),false);
+        recognizerEngine.startRecognize(dictationResultListener,null);
     }
 
     public void stopTransfer(){
         startTransfer.setImageResource(R.mipmap.voice_begin_mic);
         startTransfer.setClickable(false);
         if (recognizerEngine != null){
-            recognizerEngine.stopRecogn(new Handler(){
+//            recognizerEngine.stopRecogn(new Handler(){
+//                @Override
+//                public void handleMessage(Message msg) {
+//                    super.handleMessage(msg);
+//                    if (msg.what == Constants.WHAT_DICTATIONEND){
+//                        //destoryItem();
+//                        startTransfer.setClickable(true);
+//                    }
+//                }
+//            },Constants.WHAT_DICTATIONEND);
+            recognizerEngine.stopRecognizer(new Handler(){
                 @Override
                 public void handleMessage(Message msg) {
                     super.handleMessage(msg);
                     if (msg.what == Constants.WHAT_DICTATIONEND){
-                        //destoryItem();
                         startTransfer.setClickable(true);
                     }
                 }

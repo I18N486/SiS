@@ -13,6 +13,7 @@ import com.iflytek.zst.dictationlibrary.bean.TransTextBean;
 import com.iflytek.zst.dictationlibrary.impl.DictationResultListener;
 import com.iflytek.zst.dictationlibrary.online.transtask.AbsTask;
 import com.iflytek.zst.dictationlibrary.utils.MyLogUtils;
+import com.iflytek.zst.dictationlibrary.utils.StringUtils;
 
 /**
  * Created by DELL-5490 on 2018/12/20.
@@ -47,7 +48,7 @@ public class TransTask extends AbsTask {
     public void transTextByWebApi(String appId, String from, String to, final FormatResultBean formatResultBean,
                                   final DictationResultListener resultListener) {
         MyLogUtils.d(TAG,"call transtext: oris= "+ formatResultBean.content);
-        if (TextUtils.isEmpty(formatResultBean.content)) {
+        if (StringUtils.isEmptyOrSpaces(formatResultBean.content)) {
             //空字串翻译拦截,同时释放后执行锁
             setConditionLockAfterRun(false);
             return;
