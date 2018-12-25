@@ -9,6 +9,8 @@ public class DictationConstants {
     public static final String SENTENCEUPDATE = "rpl";
     public static final String SENTENCEEND = "apd";
 
-    public static final int TYPE_UPDATE = 0;
-    public static final int TYPE_END = 1;
+    //线程为空
+    public static final int ERROR_THREAD_NULL = 0;
+    //audiorecord为空
+    public static final int ERROR_RECORD_NULL = 1;
 }

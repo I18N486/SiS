@@ -16,6 +16,7 @@ public class TransTextBean implements Parcelable{
     public String longitude;
     public String latitude;
     public int applicationType;
+    public boolean pgs;
 
     public TransTextBean(){}
 
@@ -28,6 +29,7 @@ public class TransTextBean implements Parcelable{
         longitude = in.readString();
         latitude = in.readString();
         applicationType = in.readInt();
+        pgs = in.readByte() != 0;
     }
 
     public static final Creator<TransTextBean> CREATOR = new Creator<TransTextBean>() {
@@ -57,5 +59,6 @@ public class TransTextBean implements Parcelable{
         parcel.writeString(longitude);
         parcel.writeString(latitude);
         parcel.writeInt(applicationType);
+        parcel.writeByte((byte) (pgs? 1:0));
     }
 }

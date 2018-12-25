@@ -562,6 +562,7 @@ public class RecognizerEngine {
      * @param what msg.what
      */
     public void stopRecogn(final Handler handler, final int what){
+        isRunning = false;
         if (mAsr == null){
             return;
         }
@@ -579,7 +580,6 @@ public class RecognizerEngine {
                                 e.printStackTrace();
                             }
                         } else {
-                            isRunning = false;
                             handler.sendEmptyMessage(what);
                             break;
                         }

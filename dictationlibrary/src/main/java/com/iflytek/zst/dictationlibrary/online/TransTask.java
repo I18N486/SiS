@@ -63,6 +63,7 @@ public class TransTask extends AbsTask {
         transTextBean.latitude = "123.23";
         transTextBean.longitude = "132.519";
         transTextBean.applicationType = 1;
+        transTextBean.pgs = true;//设置该参数后台默认不保存记录
         ShieldAsyncApp_meeting.getInstance().txtTrans(transTextBean, new ApiCallback<String>() {
             @Override
             public void onDownloadProgress(ApiProgress apiProgress) {

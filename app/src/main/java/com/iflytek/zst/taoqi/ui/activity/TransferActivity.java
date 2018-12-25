@@ -21,6 +21,7 @@ import com.iflytek.zst.dictationlibrary.bean.NormalResultBean;
 import com.iflytek.zst.dictationlibrary.constants.DictationConstants;
 import com.iflytek.zst.dictationlibrary.impl.DictationResultListener;
 import com.iflytek.zst.dictationlibrary.online.RecognizerEngine;
+import com.iflytek.zst.dictationlibrary.utils.MyLogUtils;
 import com.iflytek.zst.taoqi.R;
 import com.iflytek.zst.taoqi.TaoQiApplication;
 import com.iflytek.zst.taoqi.bean.VoiceTextBean;
@@ -79,6 +80,7 @@ public class TransferActivity extends BaseActivity {
 
         @Override
         public void onSentenceResult(FormatResultBean orisBean) {
+            MyLogUtils.d("zst","接收的结果："+orisBean.toString());
             if (conversationItem == null){
                 //首次消息返回，新建item
                 createNewItem();
@@ -91,18 +93,16 @@ public class TransferActivity extends BaseActivity {
                 orisContent = orisBean.content;
                 conversationItem.setOris(orisTemp.toString()+orisContent);
                 conversationItem.updateLength = orisContent.length()-orisBean.replace;
-                conversatinAdapter.notifyDataSetChanged();
             } else if (orisBean.pgs.equals(DictationConstants.SENTENCEEND)){
                 orisTemp.append(orisContent);
                 orisContent = orisBean.content;
                 conversationItem.setOris(orisTemp.toString()+orisContent);
-                if (orisBean.isEnd){
-                    conversationItem.updateLength = 0;
-                } else {
-                    conversationItem.updateLength = orisContent.length();
-                }
-                conversatinAdapter.notifyDataSetChanged();
+                conversationItem.updateLength = orisContent.length();
             }
+            if (orisBean.isEnd){
+                conversationItem.updateLength = 0;
+            }
+            conversatinAdapter.notifyDataSetChanged();
         }
 
         @Override

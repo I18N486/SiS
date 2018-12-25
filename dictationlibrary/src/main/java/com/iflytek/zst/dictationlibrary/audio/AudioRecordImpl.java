@@ -4,8 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 
-import com.iflytek.aipsdk.audio.AudioHelper;
-import com.iflytek.aipsdk.audio.AudioListener;
+import com.iflytek.zst.dictationlibrary.impl.AudioListener;
 
 /**
  * Created by jiwang on 2018/10/14.
