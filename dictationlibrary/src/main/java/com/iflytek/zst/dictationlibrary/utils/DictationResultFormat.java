@@ -53,11 +53,13 @@ public class DictationResultFormat {
         FormatNormalBean formatNormalBean = new FormatNormalBean();
         NormalResultBean normalResultBean = new Gson().fromJson(jsonData,NormalResultBean.class);
         //默认取候选词列表中第一个(get(0))
-        NormalResultBean.ResultsBean resultsBean = normalResultBean.getResults().get(0);
-        formatNormalBean.from = resultsBean.getOriLangCountry();
-        formatNormalBean.to = resultsBean.getTransLangCountry();
-        formatNormalBean.orisContent = resultsBean.getOriginal();
-        formatNormalBean.transContent = resultsBean.getTranslated();
+        if (normalResultBean.getResults() != null) {
+            NormalResultBean.ResultsBean resultsBean = normalResultBean.getResults().get(0);
+            formatNormalBean.from = resultsBean.getOriLangCountry();
+            formatNormalBean.to = resultsBean.getTransLangCountry();
+            formatNormalBean.orisContent = resultsBean.getOriginal();
+            formatNormalBean.transContent = resultsBean.getTranslated();
+        }
         return formatNormalBean;
     }
 }

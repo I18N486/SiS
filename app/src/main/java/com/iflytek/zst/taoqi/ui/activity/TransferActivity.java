@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.iflytek.zst.dictationlibrary.bean.FormatNormalBean;
@@ -21,10 +22,12 @@ import com.iflytek.zst.dictationlibrary.bean.NormalResultBean;
 import com.iflytek.zst.dictationlibrary.constants.DictationConstants;
 import com.iflytek.zst.dictationlibrary.impl.DictationResultListener;
 import com.iflytek.zst.dictationlibrary.online.RecognizerEngine;
+import com.iflytek.zst.dictationlibrary.utils.LanguageUtils;
 import com.iflytek.zst.dictationlibrary.utils.MyLogUtils;
 import com.iflytek.zst.taoqi.R;
 import com.iflytek.zst.taoqi.TaoQiApplication;
 import com.iflytek.zst.taoqi.bean.VoiceTextBean;
+import com.iflytek.zst.taoqi.componant.adapter.LanguageSpinnerAdapter;
 import com.iflytek.zst.taoqi.componant.adapter.VoiceTextAdapter;
 import com.iflytek.zst.taoqi.constant.Constants;
 import com.iflytek.zst.taoqi.ui.activity.base.BaseActivity;
@@ -37,6 +40,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
+import butterknife.OnItemSelected;
 import butterknife.Optional;
 
 public class TransferActivity extends BaseActivity {
@@ -156,6 +160,9 @@ public class TransferActivity extends BaseActivity {
         conversatinAdapter = new VoiceTextAdapter(this,conversationList);
         conversatinAdapter.setShowTrans(transSwitch.isChecked());
         conversationView.setAdapter(conversatinAdapter);
+        LanguageSpinnerAdapter languageAdapter = new LanguageSpinnerAdapter(this,R.layout.layout_spinner_item,R.id.tv_spinner);
+        languageAdapter.setDropDownViewResource(R.layout.layout_spinner_dropdown_item);
+        languageKind.setAdapter(languageAdapter);
     }
 
     public static void actionStart(Context context) {
@@ -245,6 +252,15 @@ public class TransferActivity extends BaseActivity {
         }
     }
 
+    @OnItemSelected(R.id.language_kind)
+    public void onItemSelected(int position){
+        String language = (String) languageKind.getItemAtPosition(position);
+        if (recognizerEngine != null){
+            recognizerEngine.setTargetLanguage(getLanguageParam(language));
+        }
+
+    }
+
     @Optional
     @OnCheckedChanged(R.id.trans_switch)
     public void onCheckedChanged(CompoundButton view, boolean isChecked){
@@ -253,6 +269,26 @@ public class TransferActivity extends BaseActivity {
                 conversatinAdapter.setShowTrans(isChecked);
                 conversatinAdapter.notifyDataSetChanged();
                 break;
+        }
+    }
+
+
+    public String getLanguageParam(String language){
+        switch (language){
+            case LanguageUtils.P_LANGUAGE_EN_EN:
+                return LanguageUtils.P_LANGUAGE_EN;
+            case LanguageUtils.P_LANGUAGE_ES_ES:
+                return LanguageUtils.P_LANGUAGE_ES;
+            case LanguageUtils.P_LANGUAGE_FR_FR:
+                return LanguageUtils.P_LANGUAGE_FR;
+            case LanguageUtils.P_LANGUAGE_JA_JA:
+                return LanguageUtils.P_LANGUAGE_JA;
+            case LanguageUtils.P_LANGUAGE_KO_KO:
+                return LanguageUtils.P_LANGUAGE_KO;
+            case LanguageUtils.P_LANGUAGE_RU_RU:
+                return LanguageUtils.P_LANGUAGE_RU;
+                default:
+                    return LanguageUtils.P_LANGUAGE_EN;
         }
     }
 

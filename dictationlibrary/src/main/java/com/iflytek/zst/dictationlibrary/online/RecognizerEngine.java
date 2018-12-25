@@ -215,6 +215,10 @@ public class RecognizerEngine {
         setParam(filePath);
         //开启pgs功能，实时转写
         mAsr.setParameter(SpeechConstant.ASR_DWA, "wpgs");
+        //设置原始语种
+        mAsr.setParameter(SpeechConstant.ORI_LANG,sourceLanguage);
+        //设置目标语种
+        mAsr.setParameter(SpeechConstant.TRANS_LANG,targetLanguage);
         if (!mAsr.isListening()) {
             isRunning = true;
             int retCode = mAsr.startListening(new RecognizerListener(){
@@ -366,6 +370,13 @@ public class RecognizerEngine {
         resultListener = dictationResultListener;
         //开始识别之前先设置引擎参数
         setParam(filePath);
+        //翻译通道
+        mAsr.setParameter(SpeechConstant.ADD_CAP,"translate");
+        //设置原始语种(除了中英支持外，其他小语种需要额外开启权限才可以有效)
+        mAsr.setParameter(SpeechConstant.ORI_LANG,sourceLanguage);
+        //设置目标语种
+        mAsr.setParameter(SpeechConstant.TRANS_LANG,targetLanguage);
+
         //设置音频源（writeaudio传入）
         mAsr.setParameter(SpeechConstant.AUDIO_SOURCE,"-1");
         //开启pgs功能，实时转写
@@ -450,7 +461,9 @@ public class RecognizerEngine {
         if (writeAudioThread != null && !writeAudioThread.isInterrupted()){
             writeAudioThread.interrupt();
         }
-        audioManager.stopAddQueue();
+        if (audioManager != null) {
+            audioManager.stopAddQueue();
+        }
         stopRecogn(handler,what);
     }
 
