@@ -12,4 +12,5 @@
     <color name="transparent">#00000000</color>
     <color name="important_tag">#f4ea2a</color>
     <color name="update_text">#41c3ff</color>
+    <color name="color_232323">#232323</color>
 </resources>

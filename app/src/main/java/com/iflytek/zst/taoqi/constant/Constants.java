@@ -33,6 +33,10 @@ public class Constants {
 
     //每段会话最长字数限制
     public static final int MAXSENTENCELENGTH = 200;
+    //主显示界面可显示的最大数目
+    public static final int MAXSHOWSIZE = 50;
+    //主显示界面每次下拉加载的最大数目
+    public static final int MAXSWIPEREFRESHSIZE = 10;
 
     //引擎结束消息what
     public static final int WHAT_DICTATIONEND = 101;

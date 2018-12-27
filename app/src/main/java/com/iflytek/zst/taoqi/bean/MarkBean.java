@@ -2,11 +2,16 @@ package com.iflytek.zst.taoqi.bean;
 
 import android.support.annotation.NonNull;
 
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
 /**
  * Created by DELL-5490 on 2018/10/15.
  */
 
-public class MarkBean implements Comparable<MarkBean> {
+public class MarkBean extends RealmObject implements Comparable<MarkBean> {
+    @PrimaryKey
+    public int id;
     public int markStart;
     public int markEnd;
 

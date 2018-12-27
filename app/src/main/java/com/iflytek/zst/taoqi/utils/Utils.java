@@ -77,6 +77,18 @@ public class Utils {
         return time;
     }
 
+    /**
+     * 获取默认名称
+     * @return  20181226_1658
+     */
+    public static String getDefaultName(){
+        String time = null;
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_HHmm");
+        Date date = new Date(System.currentTimeMillis());
+        time = format.format(date);
+        return time;
+    }
+
 
     /**
      * 转换时间格式字符串为毫秒值

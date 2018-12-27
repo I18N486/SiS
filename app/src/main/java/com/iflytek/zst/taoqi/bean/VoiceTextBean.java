@@ -2,22 +2,24 @@ package com.iflytek.zst.taoqi.bean;
 
 import java.util.TreeSet;
 
+import io.realm.RealmList;
+import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by DELL-5490 on 2018/7/3.
  */
 
-public class VoiceTextBean {
+public class VoiceTextBean extends RealmObject{
     @PrimaryKey
-    String id;
+    int id;
 
     String name = "test";
     String oris = "";
     String trans = "";
     int time;
     //标记集合
-    TreeSet<MarkBean> marks;
+    RealmList<MarkBean> marks;
     boolean hasPoint;
     //需要高亮显示的文字长度
     public int updateLength;
@@ -35,11 +37,11 @@ public class VoiceTextBean {
         isEnd = end;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -83,13 +85,27 @@ public class VoiceTextBean {
         this.time = time;
     }
 
-    public TreeSet<MarkBean> getMarks() {
+    public RealmList<MarkBean> getMarks() {
         return marks;
     }
 
-    public void setMarks(TreeSet<MarkBean> marks) {
+    public void setMarks(RealmList<MarkBean> marks) {
         this.marks = marks;
     }
 
-
+    @Override
+    public String toString() {
+        return "VoiceTextBean{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", oris='" + oris + '\'' +
+                ", trans='" + trans + '\'' +
+                ", time=" + time +
+                ", marks=" + marks +
+                ", hasPoint=" + hasPoint +
+                ", updateLength=" + updateLength +
+                ", langauge='" + langauge + '\'' +
+                ", isEnd=" + isEnd +
+                '}';
+    }
 }

@@ -20,6 +20,8 @@ import com.iflytek.zst.taoqi.bean.VoiceTextBean;
 import java.util.List;
 import java.util.Set;
 
+import io.realm.RealmList;
+
 
 /**
  * Created by DELL-5490 on 2018/7/3.
@@ -28,8 +30,6 @@ import java.util.Set;
 public class VoiceTextAdapter extends RecyclerView.Adapter<VoiceTextAdapter.ViewHolder> {
     List<VoiceTextBean> voiceTextList;
     boolean isShowTrans = true;
-    private static final int FOOT_TYPE = 0;
-    private static final int NORL_TYPE = 1;
     private Context mContxt;
 
     public void setShowTrans(boolean showTrans) {
@@ -43,47 +43,40 @@ public class VoiceTextAdapter extends RecyclerView.Adapter<VoiceTextAdapter.View
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == NORL_TYPE) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.voice_text_item, null);
-            ViewHolder holder = new ViewHolder(view, viewType);
-            holder.setIsRecyclable(false);
-            return holder;
-        } else {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_voice_text_foot_view, null);
-            ViewHolder holder = new ViewHolder(view, viewType);
-            return holder;
-        }
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.voice_text_item, null);
+        ViewHolder holder = new ViewHolder(view, viewType);
+        holder.setIsRecyclable(false);
+        return holder;
 
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        if (getItemViewType(position) == NORL_TYPE) {
-            VoiceTextBean item = voiceTextList.get(position);
-            String name = item.getName();
-            String oris = item.getOris();
-            String trans = item.getTrans();
-            holder.nameTv.setText(name);
-            holder.transTv.setText(trans);
-            if (isShowTrans) {
-                holder.transLl.setVisibility(View.VISIBLE);
-            } else {
-                holder.transLl.setVisibility(View.GONE);
-            }
-            SpannableString spanString = new SpannableString(oris);
-            setUpdateAndImportantTag(spanString, item, holder.orisTv);
+        VoiceTextBean item = voiceTextList.get(position);
+        String name = item.getName();
+        String oris = item.getOris();
+        String trans = item.getTrans();
+        holder.nameTv.setText(name);
+        holder.transTv.setText(trans);
+        if (isShowTrans) {
+            holder.transLl.setVisibility(View.VISIBLE);
+        } else {
+            holder.transLl.setVisibility(View.GONE);
         }
+        SpannableString spanString = new SpannableString(oris);
+        setUpdateAndImportantTag(spanString, item, holder.orisTv);
     }
 
     /**
      * 设置重点标记及pgs高亮效果
-     *  @param spanString   识别文本
-     * @param item  数据项
-     * @param tv    重要标记的textview
+     *
+     * @param spanString 识别文本
+     * @param item       数据项
+     * @param tv         重要标记的textview
      */
     private void setUpdateAndImportantTag(SpannableString spanString, VoiceTextBean item, TextView tv) {
         int length = spanString.length();
-        Set<MarkBean> lists = item.getMarks();
+        RealmList<MarkBean> lists = item.getMarks();
         setUpdateOri(spanString, item.getOris(), item.updateLength);
         if (lists == null || lists.isEmpty()) {
             tv.setText(spanString);
@@ -110,16 +103,7 @@ public class VoiceTextAdapter extends RecyclerView.Adapter<VoiceTextAdapter.View
 
     @Override
     public int getItemCount() {
-        return voiceTextList.size() + 1;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        if (position == getItemCount() - 1) {
-            return FOOT_TYPE;
-        } else {
-            return NORL_TYPE;
-        }
+        return voiceTextList.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -130,14 +114,10 @@ public class VoiceTextAdapter extends RecyclerView.Adapter<VoiceTextAdapter.View
 
         public ViewHolder(View itemView, int viewType) {
             super(itemView);
-            if (viewType == NORL_TYPE) {
-                nameTv = itemView.findViewById(R.id.voice_speaker_name);
-                orisTv = itemView.findViewById(R.id.voice_oris_tv);
-                transTv = itemView.findViewById(R.id.voice_trans_tv);
-                transLl = itemView.findViewById(R.id.voice_trans_ll);
-            } else {
-
-            }
+            nameTv = itemView.findViewById(R.id.voice_speaker_name);
+            orisTv = itemView.findViewById(R.id.voice_oris_tv);
+            transTv = itemView.findViewById(R.id.voice_trans_tv);
+            transLl = itemView.findViewById(R.id.voice_trans_ll);
         }
     }
 }

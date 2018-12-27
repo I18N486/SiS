@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/custom_title_bar"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/et_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" 
+        android:textSize="20sp"
+        android:maxLength="20"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:textStyle="bold"/>
+    <ImageView
+        android:id="@+id/btn_clear_screen"
+        android:clickable="true"
+        android:layout_marginTop="5dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_toLeftOf="@+id/btn_end_mt"
+        android:src="@mipmap/icon_clean_new" />
+    <ImageView
+        android:id="@+id/btn_end_mt"
+        android:clickable="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:src="@mipmap/icon_ending"/>
+    <View
+        android:layout_alignBottom="@+id/btn_end_mt"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/color_498eff"/>
+</RelativeLayout>
