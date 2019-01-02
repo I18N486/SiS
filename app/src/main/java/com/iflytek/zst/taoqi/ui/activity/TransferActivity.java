@@ -184,6 +184,9 @@ public class TransferActivity extends BaseActivity implements SwipeRefreshLayout
 
     @Override
     protected void onDestroy() {
+        if (recognizerEngine != null && recognizerEngine.isRunning()){
+            recognizerEngine.stopRecognizer(null,0);
+        }
         realm.close();
         super.onDestroy();
     }
@@ -195,6 +198,9 @@ public class TransferActivity extends BaseActivity implements SwipeRefreshLayout
             @Override
             public void onChange(final RealmResults<VoiceTextBean> voiceTextBeans) {
                 if (voiceTextBeans.isLoaded()) {
+                    //加载完成，取消监听
+                    voiceTextBeans.removeAllChangeListeners();
+
                     //查询到上次会议数据，说明上次会议非正常结束
                     if (voiceTextBeans.size() > 0) {
                         baseDialog = new BaseDialog.Builder(TransferActivity.this)
@@ -205,24 +211,28 @@ public class TransferActivity extends BaseActivity implements SwipeRefreshLayout
                                     public void onClick(View view) {
                                         baseDialog.dismiss();
                                         switch (view.getId()) {
-                                            case BaseDialog.BASEDIALOG_CLOSEID:
-                                                ;
-                                                voiceTextBeans.deleteAllFromRealm();
-                                                break;
-                                            case BaseDialog.BASEDIALOG_CANCELID:
-                                                voiceTextBeans.deleteAllFromRealm();
-                                                break;
                                             case BaseDialog.BASEDIALOG_SUREID:
                                                 conversationList.addAll(voiceTextBeans);
                                                 syncID = conversationList.size();
                                                 conversatinAdapter.notifyDataSetChanged();
                                                 break;
+                                            case BaseDialog.BASEDIALOG_CLOSEID:
+                                            case BaseDialog.BASEDIALOG_CANCELID:
+                                                default:
+                                                    realm.executeTransaction(new Realm.Transaction() {
+                                                        @Override
+                                                        public void execute(Realm realm) {
+                                                            voiceTextBeans.deleteAllFromRealm();
+                                                        }
+                                                    });
+                                                    break;
                                         }
                                     }
                                 }, BaseDialog.BASEDIALOG_CLOSEID, BaseDialog.BASEDIALOG_CANCELID, BaseDialog.BASEDIALOG_SUREID)
-                                .customDialog(400, 200)
+                                .customDialog(1000, 800)
                                 .build();
                         baseDialog.show();
+                        baseDialog.setCanceledOnTouchOutside(false);
                     }
                 }
             }

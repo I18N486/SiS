@@ -294,6 +294,7 @@ public class RecognizerEngine {
                 @Override
                 public void onRecord(byte[] audio) {
                     addToAudioQueue(audio);
+                    resultListener.onAudioBytes(audio);
                 }
 
                 @Override
@@ -392,9 +393,9 @@ public class RecognizerEngine {
                 @Override
                 public void onVolumeChanged(int i, byte[] bytes) {
                     MyLogUtils.d(TAG,"onVolumeChanged "+ i);
-                    if (resultListener != null){
-                        resultListener.onAudioBytes(bytes);
-                    }
+//                    if (resultListener != null){
+//                        resultListener.onAudioBytes(bytes);
+//                    }
                 }
 
                 @Override
@@ -593,6 +594,7 @@ public class RecognizerEngine {
                                 e.printStackTrace();
                             }
                         } else {
+                            if (handler != null)
                             handler.sendEmptyMessage(what);
                             break;
                         }

@@ -95,6 +95,7 @@ public class BaseDialog{
             tvContent = layout.findViewById(R.id.base_dialog_content);
             btnCancel = layout.findViewById(BASEDIALOG_CANCELID);
             btnSure = layout.findViewById(BASEDIALOG_SUREID);
+            dialog.setContentView(layout);
         }
 
         public Builder setTitle(String title){
@@ -159,6 +160,12 @@ public class BaseDialog{
     public void dismiss(){
         if (dialog != null && dialog.isShowing()){
             dialog.dismiss();
+        }
+    }
+
+    public void setCanceledOnTouchOutside(boolean flag){
+        if (dialog != null){
+            dialog.setCanceledOnTouchOutside(flag);
         }
     }
 }

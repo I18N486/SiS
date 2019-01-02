@@ -34,6 +34,8 @@
     </LinearLayout>
     <TextView
         android:id="@+id/base_dialog_content"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
@@ -56,7 +58,7 @@
             android:layout_gravity="center_vertical"
             android:gravity="center"
             android:background="@drawable/button_bg"
-            android:text="Cancel"/>
+            android:text="@string/btn_cancel"/>
         <Button
             android:id="@+id/base_dialog_sure"
             android:layout_width="80dp"
@@ -64,7 +66,7 @@
             android:layout_gravity="center_vertical"
             android:gravity="center"
             android:background="@drawable/button_bg"
-            android:text="Sure"/>
+            android:text="@string/btn_confirm"/>
         <View
             android:layout_width="0dp"
             android:layout_height="match_parent"
